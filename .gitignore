@@ -1,0 +1,15 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Dependency directory
+node_modules
+
+# Unwanted
+.idea
+.DS_Store
+
+# Build files
+dist/*
+!dist/favicon.ico
