@@ -4,13 +4,19 @@ All notable changes to `rollup-plugin-serve` will be documented in this file.
 
 ## [Unreleased]
 
-## [0.0.2]
+## [0.1.0] - 2016-09-29
+### Added
+- Option `open` open the project in browser
+- Option `historyApiFallback`
+- Default green favicon
+
+## Changed
+- Option `root` is now `contentBase`
 
 ## [0.0.1] - 2016-09-24
-
 ### Added
 - Initial version
 
-[Unreleased]: https://github.com/thgh/rollup-plugin-serve/compare/v0.0.1...HEAD
-[0.0.2]: https://github.com/thgh/rollup-plugin-serve/compare/v0.0.1...v0.0.2
+[Unreleased]: https://github.com/thgh/rollup-plugin-serve/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/thgh/rollup-plugin-serve/compare/v0.0.1...v0.1.0
 [0.0.1]: https://github.com/thgh/rollup-plugin-serve/releases

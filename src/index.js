@@ -15,46 +15,46 @@ export default function serve (options = {}) {
 
   createServer(function (request, response) {
     // Remove querystring
-    var filePath = options.contentBase + request.url.split('?')[0]
+    const urlPath = request.url.split('?')[0]
+    var filePath = resolve(options.contentBase, '.' + urlPath)
 
     // Load index.html in directories
-    if (filePath.endsWith('/')) {
-      filePath += 'index.html'
+    if (urlPath.endsWith('/')) {
+      filePath = resolve(filePath, 'index.html')
     }
 
-    readFile('.' + filePath, function (error, content) {
-      if (error) {
-        if (error.code === 'ENOENT') {
-          if (request.url === '/favicon.ico') {
-            filePath = resolve(__dirname, '../dist/favicon.ico')
-            readFile(filePath, function (error, content) {
-              if (error) {
-                notFound(response, filePath)
-              } else {
-                found(response, filePath, content)
-              }
-            })
-          } else if (options.historyApiFallback) {
-            filePath = resolve(options.contentBase, 'index.html')
-            readFile(filePath, function (error, content) {
-              if (error) {
-                notFound(response, filePath)
-              } else {
-                found(response, filePath, content)
-              }
-            })
-          } else {
+    readFile(filePath, function (error, content) {
+      if (!error)  {
+        return found(response, filePath, content)
+      }
+      if (error.code !== 'ENOENT') {
+        response.writeHead(500)
+        response.end('500 Internal Server Error' +
+          '\n\n' + filePath +
+          '\n\n' + Object.keys(error).map(function (k) { return error[k]; }).join('\n') +
+          '\n\n(rollup-plugin-serve)', 'utf-8')
+        return
+      }
+      if (request.url === '/favicon.ico') {
+        filePath = resolve(__dirname, '../dist/favicon.ico')
+        readFile(filePath, function (error, content) {
+          if (error) {
             notFound(response, filePath)
+          } else {
+            found(response, filePath, content)
           }
-        } else {
-          response.writeHead(500)
-          response.end('500 Internal Server Error' +
-            '\n\n' + filePath +
-            '\n\n' + Object.keys(error).map(k => error[k]).join('\n') +
-            '\n\n(rollup-plugin-serve)', 'utf-8')
-        }
+        })
+      } else if (options.historyApiFallback) {
+        filePath = resolve(options.contentBase, 'index.html')
+        readFile(filePath, function (error, content) {
+          if (error) {
+            notFound(response, filePath)
+          } else {
+            found(response, filePath, content)
+          }
+        })
       } else {
-        found(response, filePath, content)
+        notFound(response, filePath)
       }
     })
   }).listen(options.port)
@@ -66,7 +66,7 @@ export default function serve (options = {}) {
     ongenerate () {
       if (!running && options.open) {
         running = true
-        console.log('Server running at ' + green(url))
+        console.log(green(url) + ' -> ' + resolve(options.contentBase))
 
         // Open browser
         opener(url)

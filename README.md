@@ -30,17 +30,32 @@ export default {
   entry: 'entry.js',
   dest: 'bundle.js',
   plugins: [
-    serve({
-      // Where to serve files from
-      contentBase: 'dist/',
-
-      // Return index.html instead of 404
-      historyApiFallback: false
-    })
+    serve('dist')
   ]
 }
 ```
 
+### Options
+
+By default it serves the current project folder. Change it by passing a string:
+```
+serve('public')    // will be used as contentBase
+
+// Default options
+serve({
+  // Folder to serve files from,
+  contentBase: '',
+
+  // Set to true to return index.html instead of 404
+  historyApiFallback: false,
+
+  // Options used in setting up server
+  host: 'localhost',
+  port: 10001
+})
+```
+
+>>>>>>> master
 ## Changelog
 
 Please see [CHANGELOG](CHANGELOG.md) for more information what has changed recently.
@@ -65,4 +80,4 @@ The MIT License (MIT). Please see [License File](LICENSE) for more information.
 
 [link-author]: https://github.com/thgh
 [link-contributors]: ../../contributors
-[serve]: https://www.npmjs.com/package/serve
+[rollup-plugin-serve]: https://www.npmjs.com/package/rollup-plugin-serve
