@@ -64,10 +64,9 @@ export default function serve (options = {}) {
   return {
     name: 'serve',
     ongenerate () {
+      console.log(green(url) + ' -> ' + resolve(options.contentBase))
       if (!running && options.open) {
         running = true
-        console.log(green(url) + ' -> ' + resolve(options.contentBase))
-
         // Open browser
         opener(url)
       }
