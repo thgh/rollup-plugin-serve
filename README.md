@@ -52,6 +52,9 @@ serve({
   // Folder to serve files from
   contentBase: '',
 
+  // Multiple folders to serve from
+  contentBase: ['dist', 'static'],
+
   // Set to true to return index.html instead of 404
   historyApiFallback: false,
 

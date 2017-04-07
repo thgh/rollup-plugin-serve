@@ -6,24 +6,20 @@ import mime from 'mime'
 import opener from 'opener'
 
 export default function serve (options = {}) {
-  options.contentBase = options.contentBase || ''
+  if (Array.isArray(options) || typeof options === 'string') {
+    options = { contentBase: options }
+  }
+  options.contentBase = Array.isArray(options.contentBase) ? options.contentBase : [options.contentBase]
   options.host = options.host || 'localhost'
   options.port = options.port || 10001
-  const url = 'http://' + options.host + ':' + options.port
 
   mime.default_type = 'text/plain'
 
   createServer(function (request, response) {
     // Remove querystring
     const urlPath = request.url.split('?')[0]
-    var filePath = resolve(options.contentBase, '.' + urlPath)
 
-    // Load index.html in directories
-    if (urlPath.endsWith('/')) {
-      filePath = resolve(filePath, 'index.html')
-    }
-
-    readFile(filePath, function (error, content) {
+    readFileFromContentBase(options.contentBase, urlPath, function (error, content, filePath) {
       if (!error)  {
         return found(response, filePath, content)
       }
@@ -66,7 +62,12 @@ export default function serve (options = {}) {
     ongenerate () {
       if (!running) {
         running = true
-        console.log(green(url) + ' -> ' + resolve(options.contentBase))
+
+        // Log which url to visit
+        const url = 'http://' + options.host + ':' + options.port
+        options.contentBase.forEach(base => {
+          console.log(green(url) + ' -> ' + resolve(base))
+        })
 
         // Open browser
         if (options.open) {
@@ -75,6 +76,25 @@ export default function serve (options = {}) {
       }
     }
   }
+}
+
+function readFileFromContentBase (contentBase, urlPath, callback) {
+  let filePath = resolve(contentBase[0] || '.', '.' + urlPath)
+
+  // Load index.html in directories
+  if (urlPath.endsWith('/')) {
+    filePath = resolve(filePath, 'index.html')
+  }
+
+  readFile(filePath, (error, content) => {
+    if (error && contentBase.length > 1) {
+      // Try to read from next contentBase
+      readFileFromContentBase(contentBase.slice(1), urlPath, callback)
+    } else {
+      // We know enough
+      callback(error, content, filePath)
+    }
+  })
 }
 
 function notFound (response, filePath) {
