@@ -59,16 +59,19 @@ export default function serve (options = {}) {
     })
   }).listen(options.port)
 
-  var running = false
+  var running = options.verbose === false
 
   return {
     name: 'serve',
     ongenerate () {
-      console.log(green(url) + ' -> ' + resolve(options.contentBase))
-      if (!running && options.open) {
+      if (!running) {
         running = true
+        console.log(green(url) + ' -> ' + resolve(options.contentBase))
+
         // Open browser
-        opener(url)
+        if (options.open) {
+          opener(url)
+        }
       }
     }
   }

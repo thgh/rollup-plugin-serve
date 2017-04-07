@@ -38,12 +38,18 @@ export default {
 ### Options
 
 By default it serves the current project folder. Change it by passing a string:
-```
+```js
 serve('public')    // will be used as contentBase
 
 // Default options
 serve({
-  // Folder to serve files from,
+  // Launch in browser (default: false)
+  open: true,
+
+  // Show server address in console (default: true)
+  verbose: false,
+
+  // Folder to serve files from
   contentBase: '',
 
   // Set to true to return index.html instead of 404
