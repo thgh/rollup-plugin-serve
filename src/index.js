@@ -41,7 +41,7 @@ export default function serve (options = {}) {
           }
         })
       } else if (options.historyApiFallback) {
-        readFileFromContentBase(options.contentBase, 'index.html', function (error, content, filePath) {
+        readFileFromContentBase(options.contentBase, '/index.html', function (error, content, filePath) {
           if (error) {
             notFound(response, filePath)
           } else {
