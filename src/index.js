@@ -5,7 +5,7 @@ import { resolve } from 'path'
 import mime from 'mime'
 import opener from 'opener'
 
-export default function serve (options = {}) {
+export default function serve (options = { contentBase: '' }) {
   if (Array.isArray(options) || typeof options === 'string') {
     options = { contentBase: options }
   }
