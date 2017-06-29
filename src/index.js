@@ -17,7 +17,7 @@ export default function serve (options = { contentBase: '' }) {
 
   createServer(function (request, response) {
     // Remove querystring
-    const urlPath = request.url.split('?')[0]
+    const urlPath = decodeURI(request.url.split('?')[0])
 
     readFileFromContentBase(options.contentBase, urlPath, function (error, content, filePath) {
       if (!error)  {
