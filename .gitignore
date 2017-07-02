@@ -13,3 +13,4 @@ node_modules
 # Build files
 dist/*
 !dist/favicon.ico
+test/dest.js
