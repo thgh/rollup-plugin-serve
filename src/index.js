@@ -41,8 +41,7 @@ export default function serve (options = { contentBase: '' }) {
           }
         })
       } else if (options.historyApiFallback) {
-        filePath = resolve(options.contentBase, 'index.html')
-        readFile(filePath, function (error, content) {
+        readFileFromContentBase(options.contentBase, '/index.html', function (error, content, filePath) {
           if (error) {
             notFound(response, filePath)
           } else {
