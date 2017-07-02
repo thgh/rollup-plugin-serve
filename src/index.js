@@ -20,8 +20,8 @@ export default function serve (options = { contentBase: '' }) {
     const urlPath = decodeURI(request.url.split('?')[0])
 
     readFileFromContentBase(options.contentBase, urlPath, function (error, content, filePath) {
-      if (!error)  {
-        return found(response, filePath, content)
+      if (!error) {
+        return found(response, filePath, content, options.modifier)
       }
       if (error.code !== 'ENOENT') {
         response.writeHead(500)
@@ -104,8 +104,11 @@ function notFound (response, filePath) {
     '\n\n(rollup-plugin-serve)', 'utf-8')
 }
 
-function found (response, filePath, content) {
+function found (response, filePath, content, modifier) {
   response.writeHead(200, { 'Content-Type': mime.lookup(filePath) })
+  if (typeof modifier === 'function') {
+    modifier(response)
+  }
   response.end(content, 'utf-8')
 }
 

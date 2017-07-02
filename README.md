@@ -15,7 +15,7 @@
 <a href="https://github.com/thgh/rollup-plugin-serve/releases">
   <img src="https://img.shields.io/github/release/thgh/rollup-plugin-serve.svg" alt="Latest Version" />
 </a>
-  
+
 ## Installation
 ```
 npm install --save-dev rollup-plugin-serve
@@ -60,7 +60,13 @@ serve({
 
   // Options used in setting up server
   host: 'localhost',
-  port: 10001
+  port: 10001,
+
+  // Pass a function to modify response object (default: null)
+  modifier: function(response) {
+    // Example
+    response.setHeader('Access-Control-Allow-Origin', '*');
+  }
 })
 ```
 
