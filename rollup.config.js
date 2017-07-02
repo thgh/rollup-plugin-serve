@@ -6,10 +6,9 @@ export default {
   plugins: [
     buble()
   ],
-  // Cleaner console
-  onwarn (msg) {
-    if (msg && msg.startsWith('Treating')) {
-      return
+  onwarn ({ code, message }) {
+    if (code !== 'UNRESOLVED_IMPORT') {
+      console.warn(message)
     }
   }
 }
