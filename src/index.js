@@ -12,12 +12,17 @@ export default function serve (options = { contentBase: '' }) {
   options.contentBase = Array.isArray(options.contentBase) ? options.contentBase : [options.contentBase]
   options.host = options.host || 'localhost'
   options.port = options.port || 10001
+  options.headers = options.headers || [];
 
   mime.default_type = 'text/plain'
 
   createServer(function (request, response) {
     // Remove querystring
     const urlPath = decodeURI(request.url.split('?')[0])
+
+    options.headers.map((header) => {
+      response.setHeader(header.name, header.value);
+    });
 
     readFileFromContentBase(options.contentBase, urlPath, function (error, content, filePath) {
       if (!error)  {
