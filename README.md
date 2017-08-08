@@ -15,7 +15,7 @@
 <a href="https://github.com/thgh/rollup-plugin-serve/releases">
   <img src="https://img.shields.io/github/release/thgh/rollup-plugin-serve.svg" alt="Latest Version" />
 </a>
-  
+
 ## Installation
 ```
 npm install --save-dev rollup-plugin-serve
@@ -62,13 +62,17 @@ serve({
   host: 'localhost',
   port: 10001,
 
+  // By default server will be served over HTTP (https: false). It can optionally be served over HTTP/2 with HTTPS
+  https: {
+    key: fs.readFileSync("/path/to/server.key"),
+    cert: fs.readFileSync("/path/to/server.crt"),
+    ca: fs.readFileSync("/path/to/ca.pem")
+  },
+
   //set headers
-  headers: [
-    {
-      name: 'foo',
-      value: 'bar'
-    }
-  ]
+  headers: {
+    foo: 'bar'
+  }
 })
 ```
 

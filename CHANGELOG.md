@@ -5,6 +5,7 @@ All notable changes to `rollup-plugin-serve` will be documented in this file.
 ## [Unreleased]
 ### Added
 - Default `contentBase` to current project folder
+- Option to serve over over HTTP/2 with HTTPS
 
 ## [0.1.0] - 2016-09-29
 ### Added
