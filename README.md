@@ -63,12 +63,9 @@ serve({
   port: 10001,
 
   //set headers
-  headers: [
-    {
-      name: 'foo',
-      value: 'bar'
-    }
-  ]
+  headers: {
+    foo: 'bar'
+  }
 })
 ```
 

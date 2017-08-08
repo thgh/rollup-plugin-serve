@@ -12,7 +12,7 @@ export default function serve (options = { contentBase: '' }) {
   options.contentBase = Array.isArray(options.contentBase) ? options.contentBase : [options.contentBase]
   options.host = options.host || 'localhost'
   options.port = options.port || 10001
-  options.headers = options.headers || [];
+  options.headers = options.headers || {};
 
   mime.default_type = 'text/plain'
 
@@ -20,8 +20,8 @@ export default function serve (options = { contentBase: '' }) {
     // Remove querystring
     const urlPath = decodeURI(request.url.split('?')[0])
 
-    options.headers.map((header) => {
-      response.setHeader(header.name, header.value);
+    Object.keys(options.headers).forEach((key) => {
+      response.setHeader(key, options.headers[key]);
     });
 
     readFileFromContentBase(options.contentBase, urlPath, function (error, content, filePath) {
