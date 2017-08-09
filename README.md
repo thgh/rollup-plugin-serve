@@ -60,7 +60,12 @@ serve({
 
   // Options used in setting up server
   host: 'localhost',
-  port: 10001
+  port: 10001,
+
+  //set headers
+  headers: {
+    foo: 'bar'
+  }
 })
 ```
 

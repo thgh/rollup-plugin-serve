@@ -9,7 +9,7 @@
     "build": "rollup -c -f cjs -o dist/index.cjs.js && rollup -c -f es -o dist/index.es.js",
     "dev": "rollup -cw -f cjs -o dist/index.cjs.js",
     "lint": "standard rollup.config.js src/**",
-    "prepublish": "npm run build"
+    "prepare": "npm run build"
   },
   "keywords": [
     "rollup",
