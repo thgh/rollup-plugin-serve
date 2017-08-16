@@ -16,7 +16,7 @@ export default function serve (options = { contentBase: '' }) {
 
   mime.default_type = 'text/plain'
 
-  createServer(function (request, response) {
+  const server = createServer(function (request, response) {
     // Remove querystring
     const urlPath = decodeURI(request.url.split('?')[0])
 
@@ -58,6 +58,8 @@ export default function serve (options = { contentBase: '' }) {
       }
     })
   }).listen(options.port)
+
+  closeServerOnTermination(server);
 
   var running = options.verbose === false
 
@@ -115,4 +117,14 @@ function found (response, filePath, content) {
 
 function green (text) {
   return '\u001b[1m\u001b[32m' + text + '\u001b[39m\u001b[22m'
+}
+
+function closeServerOnTermination(server) {
+  const terminationSignals = ['SIGINT', 'SIGTERM'];
+  terminationSignals.forEach((signal) => {
+    process.on(signal, () => {
+      server.close();
+      process.exit();
+    })
+  })
 }
