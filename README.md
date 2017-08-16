@@ -62,7 +62,7 @@ serve({
   host: 'localhost',
   port: 10001,
 
-  // By default server will be served over HTTP (https: false). It can optionally be served over HTTP/2 with HTTPS
+  // By default server will be served over HTTP (https: false). It can optionally be served over HTTPS
   https: {
     key: fs.readFileSync("/path/to/server.key"),
     cert: fs.readFileSync("/path/to/server.crt"),
