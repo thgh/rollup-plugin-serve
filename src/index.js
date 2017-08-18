@@ -1,4 +1,5 @@
 import { readFile } from 'fs'
+import { createServer as createHttpsServer } from 'https'
 import { createServer } from 'http'
 import { resolve } from 'path'
 
@@ -12,27 +13,32 @@ export default function serve (options = { contentBase: '' }) {
   options.contentBase = Array.isArray(options.contentBase) ? options.contentBase : [options.contentBase]
   options.host = options.host || 'localhost'
   options.port = options.port || 10001
-  options.headers = options.headers || {};
-
+  options.headers = options.headers || {}
+  options.https = options.https || false
   mime.default_type = 'text/plain'
 
-  const server = createServer(function (request, response) {
+  let server
+  // Fallback to http protocol if https option is false or SSL cert files do not exist
+  const PROTOCOL = (options.https && 'https://') || 'http://'
+  const requestListener = (request, response) => {
     // Remove querystring
     const urlPath = decodeURI(request.url.split('?')[0])
 
     Object.keys(options.headers).forEach((key) => {
-      response.setHeader(key, options.headers[key]);
-    });
+      response.setHeader(key, options.headers[key])
+    })
 
     readFileFromContentBase(options.contentBase, urlPath, function (error, content, filePath) {
-      if (!error)  {
+      if (!error) {
         return found(response, filePath, content)
       }
       if (error.code !== 'ENOENT') {
         response.writeHead(500)
         response.end('500 Internal Server Error' +
           '\n\n' + filePath +
-          '\n\n' + Object.keys(error).map(function (k) { return error[k]; }).join('\n') +
+          '\n\n' + Object.keys(error).map(function (k) {
+            return error[k]
+          }).join('\n') +
           '\n\n(rollup-plugin-serve)', 'utf-8')
         return
       }
@@ -57,9 +63,15 @@ export default function serve (options = { contentBase: '' }) {
         notFound(response, filePath)
       }
     })
-  }).listen(options.port)
+  }
 
-  closeServerOnTermination(server);
+  if (options.https) {
+    server = createHttpsServer(options.https, requestListener).listen(options.port)
+  } else {
+    server = createServer(requestListener).listen(options.port)
+  }
+
+  closeServerOnTermination(server)
 
   var running = options.verbose === false
 
@@ -70,7 +82,7 @@ export default function serve (options = { contentBase: '' }) {
         running = true
 
         // Log which url to visit
-        const url = 'http://' + options.host + ':' + options.port
+        const url = `${PROTOCOL + options.host}:${options.port}`
         options.contentBase.forEach(base => {
           console.log(green(url) + ' -> ' + resolve(base))
         })
@@ -119,12 +131,12 @@ function green (text) {
   return '\u001b[1m\u001b[32m' + text + '\u001b[39m\u001b[22m'
 }
 
-function closeServerOnTermination(server) {
-  const terminationSignals = ['SIGINT', 'SIGTERM'];
+function closeServerOnTermination (server) {
+  const terminationSignals = ['SIGINT', 'SIGTERM']
   terminationSignals.forEach((signal) => {
     process.on(signal, () => {
-      server.close();
-      process.exit();
+      server.close()
+      process.exit()
     })
   })
 }
