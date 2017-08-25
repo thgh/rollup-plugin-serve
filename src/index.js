@@ -17,9 +17,6 @@ export default function serve (options = { contentBase: '' }) {
   options.https = options.https || false
   mime.default_type = 'text/plain'
 
-  let server
-  // Fallback to http protocol if https option is false or SSL cert files do not exist
-  const PROTOCOL = (options.https && 'https://') || 'http://'
   const requestListener = (request, response) => {
     // Remove querystring
     const urlPath = decodeURI(request.url.split('?')[0])
@@ -65,6 +62,8 @@ export default function serve (options = { contentBase: '' }) {
     })
   }
 
+  // If HTTPS options are available, create an HTTPS server
+  let server
   if (options.https) {
     server = createHttpsServer(options.https, requestListener).listen(options.port)
   } else {
@@ -82,7 +81,7 @@ export default function serve (options = { contentBase: '' }) {
         running = true
 
         // Log which url to visit
-        const url = `${PROTOCOL + options.host}:${options.port}`
+        const url = (options.https ? 'https' : 'http') + '://' + options.host + ':' + options.port
         options.contentBase.forEach(base => {
           console.log(green(url) + ' -> ' + resolve(base))
         })
