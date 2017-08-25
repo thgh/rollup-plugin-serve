@@ -27,8 +27,8 @@ npm install --save-dev rollup-plugin-serve
 import serve from 'rollup-plugin-serve'
 
 export default {
-  entry: 'entry.js',
-  dest: 'bundle.js',
+  input: 'entry.js',
+  output: 'dist/bundle.js',
   plugins: [
     serve('dist')
   ]
@@ -64,19 +64,19 @@ serve({
 
   // By default server will be served over HTTP (https: false). It can optionally be served over HTTPS
   https: {
-    key: fs.readFileSync("/path/to/server.key"),
-    cert: fs.readFileSync("/path/to/server.crt"),
-    ca: fs.readFileSync("/path/to/ca.pem")
+    key: fs.readFileSync('/path/to/server.key'),
+    cert: fs.readFileSync('/path/to/server.crt'),
+    ca: fs.readFileSync('/path/to/ca.pem')
   },
 
   //set headers
   headers: {
+    'Access-Control-Allow-Origin': '*',
     foo: 'bar'
   }
 })
 ```
 
->>>>>>> master
 ## Changelog
 
 Please see [CHANGELOG](CHANGELOG.md) for more information what has changed recently.
