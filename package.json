@@ -1,6 +1,6 @@
 {
   "name": "rollup-plugin-serve",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "Serve your rolled up bundle",
   "main": "dist/index.cjs.js",
   "module": "dist/index.es.js",
