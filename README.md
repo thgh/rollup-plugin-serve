@@ -28,7 +28,10 @@ import serve from 'rollup-plugin-serve'
 
 export default {
   input: 'entry.js',
-  output: 'dist/bundle.js',
+  output: {
+    file: 'dist/bundle.js',
+    format: ...
+  },
   plugins: [
     serve('dist')
   ]
