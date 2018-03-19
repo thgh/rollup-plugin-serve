@@ -61,6 +61,9 @@ serve({
   // Set to true to return index.html instead of 404
   historyApiFallback: false,
 
+  // Return override.html instead of 404
+  historyApiFallback: '/override.html',
+
   // Options used in setting up server
   host: 'localhost',
   port: 10001,
