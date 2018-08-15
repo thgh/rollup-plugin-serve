@@ -131,7 +131,7 @@ function readFileFromContentBase (options, urlPath, response, callback) {
         }
 
         // when still not found, try all the configured folder indexes
-        if (fileIdx < candidateFiles.lengt - 1) {
+        if (fileIdx < candidateFiles.length - 1) {
           fileIdx += 1
           return tryFile()
         } else {
