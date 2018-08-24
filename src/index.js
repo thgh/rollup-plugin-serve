@@ -15,6 +15,7 @@ export default function serve (options = { contentBase: '' }) {
   options.port = options.port || 10001
   options.headers = options.headers || {}
   options.https = options.https || false
+  options.favicon = options.favicon || resolve(__dirname, '../dist/favicon.ico')
   mime.default_type = 'text/plain'
 
   const requestListener = (request, response) => {
@@ -40,7 +41,7 @@ export default function serve (options = { contentBase: '' }) {
         return
       }
       if (request.url === '/favicon.ico') {
-        filePath = resolve(__dirname, '../dist/favicon.ico')
+        filePath = options.favicon
         readFile(filePath, function (error, content) {
           if (error) {
             notFound(response, filePath)
