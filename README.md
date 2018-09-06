@@ -88,6 +88,8 @@ Please see [CHANGELOG](CHANGELOG.md) for more information what has changed recen
 
 Contributions and feedback are very welcome.
 
+This project aims to stay lean and close to standards. New features should encourage to stick to standards. Options that match the behaviour of [webpack-dev-server](https://webpack.js.org/configuration/dev-server/#devserver) are always ok.
+
 To get it running:
   1. Clone the project.
   2. `npm install`
