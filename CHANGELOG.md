@@ -2,6 +2,9 @@
 
 All notable changes to `rollup-plugin-serve` will be documented in this file.
 
+### Added
+- Option `openPage`
+
 ## [0.4.2] - 2017-08-25
 ### Added
 - Option `https`
