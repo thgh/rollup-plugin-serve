@@ -58,6 +58,12 @@ serve({
   // Multiple folders to serve from
   contentBase: ['dist', 'static'],
 
+  // Directory index files
+  indexFiles: ['index.html'],
+
+  // File extensions to try if no file
+  fileExtensions: [],
+
   // Set to true to return index.html instead of 404
   historyApiFallback: false,
 

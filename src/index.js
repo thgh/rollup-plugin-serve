@@ -6,15 +6,24 @@ import { resolve } from 'path'
 import mime from 'mime'
 import opener from 'opener'
 
-export default function serve (options = { contentBase: '' }) {
+export default function serve (options) {
   if (Array.isArray(options) || typeof options === 'string') {
     options = { contentBase: options }
   }
+
+  options = Object.assign({
+    contentBase: '',
+    indexFiles: 'index.html',
+    fileExtensions: [],
+    host: 'localhost',
+    port: 10001,
+    headers: {},
+    https: false
+  }, options)
+
   options.contentBase = Array.isArray(options.contentBase) ? options.contentBase : [options.contentBase]
-  options.host = options.host || 'localhost'
-  options.port = options.port || 10001
-  options.headers = options.headers || {}
-  options.https = options.https || false
+  options.indexFiles = Array.isArray(options.indexFiles) ? options.indexFiles : [options.indexFiles]
+  options.fileExtensions = Array.isArray(options.fileExtensions) ? options.fileExtensions : [options.fileExtensions]
   mime.default_type = 'text/plain'
 
   const requestListener = (request, response) => {
@@ -25,7 +34,7 @@ export default function serve (options = { contentBase: '' }) {
       response.setHeader(key, options.headers[key])
     })
 
-    readFileFromContentBase(options.contentBase, urlPath, function (error, content, filePath) {
+    readFileFromContentBase(options, urlPath, response, function (error, content, filePath) {
       if (!error) {
         return found(response, filePath, content)
       }
@@ -49,7 +58,7 @@ export default function serve (options = { contentBase: '' }) {
           }
         })
       } else if (options.historyApiFallback) {
-        readFileFromContentBase(options.contentBase, '/index.html', function (error, content, filePath) {
+        readFileFromContentBase(options, '/index.html', response, function (error, content, filePath) {
           if (error) {
             notFound(response, filePath)
           } else {
@@ -95,23 +104,63 @@ export default function serve (options = { contentBase: '' }) {
   }
 }
 
-function readFileFromContentBase (contentBase, urlPath, callback) {
-  let filePath = resolve(contentBase[0] || '.', '.' + urlPath)
+function readFileFromContentBase (options, urlPath, response, callback) {
+  const contentBase = options.contentBase
+  const candidateFiles = [''].concat(options.indexFiles)
+  const fileExtensions = [''].concat(options.fileExtensions)
 
-  // Load index.html in directories
-  if (urlPath.endsWith('/')) {
-    filePath = resolve(filePath, 'index.html')
-  }
+  let extIdx = 0
+  let baseIdx = 0
+  let fileIdx = 0
 
-  readFile(filePath, (error, content) => {
-    if (error && contentBase.length > 1) {
-      // Try to read from next contentBase
-      readFileFromContentBase(contentBase.slice(1), urlPath, callback)
-    } else {
-      // We know enough
+  function tryFile () {
+    const crtExt = fileExtensions[extIdx]
+    const crtBase = contentBase[baseIdx]
+    const crtFile = candidateFiles[fileIdx]
+
+    const filePath = resolve(crtBase || '.', '.' + urlPath, crtFile) + crtExt
+
+    readFile(filePath, (error, content) => {
+      if (error) {
+        // when not found, try all the configured file extensions
+        if (extIdx < fileExtensions.length - 1) {
+          extIdx += 1
+          return tryFile()
+        } else {
+          extIdx = 0
+        }
+
+        // when still not found, try all the configured folder indexes
+        if (fileIdx < candidateFiles.length - 1) {
+          fileIdx += 1
+          return tryFile()
+        } else {
+          fileIdx = 0
+        }
+
+        // when still not found, try all the configured content bases
+        if (baseIdx < contentBase.length - 1) {
+          baseIdx += 1
+          return tryFile()
+        }
+      }
+
+      // when found a file match, but it is one folder deeper, redirect (needed for esm loding)
+      if (!error && crtFile !== '') {
+        const location = urlPath.replace(/\/+$/, '') + '/' + crtFile
+        return redirect(response, location)
+      }
+
+      // all done.
       callback(error, content, filePath)
-    }
-  })
+    })
+  }
+  tryFile()
+}
+
+function redirect (response, location) {
+  response.writeHead(307, { 'Location': location })
+  response.end()
 }
 
 function notFound (response, filePath) {
