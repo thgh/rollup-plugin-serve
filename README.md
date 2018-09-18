@@ -63,11 +63,11 @@ serve({
   // Multiple folders to serve from
   contentBase: ['dist', 'static'],
 
-  // Set to true to return index.html instead of 404
+  // Set to true to return index.html (200) instead of error page (404)
   historyApiFallback: false,
 
-  // Return override.html instead of 404
-  historyApiFallback: '/override.html',
+  // Path to fallback page
+  historyApiFallback: '/200.html',
 
   // Options used in setting up server
   host: 'localhost',
