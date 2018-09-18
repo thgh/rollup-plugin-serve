@@ -50,7 +50,8 @@ export default function serve (options = { contentBase: '' }) {
           }
         })
       } else if (options.historyApiFallback) {
-        readFileFromContentBase(options.contentBase, '/index.html', function (error, content, filePath) {
+        var fallbackPath = typeof options.historyApiFallback === 'string' ? options.historyApiFallback : '/index.html'
+        readFileFromContentBase(options.contentBase, fallbackPath, function (error, content, filePath) {
           if (error) {
             notFound(response, filePath)
           } else {
