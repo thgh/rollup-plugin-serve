@@ -15,6 +15,7 @@ export default function serve (options = { contentBase: '' }) {
   options.port = options.port || 10001
   options.headers = options.headers || {}
   options.https = options.https || false
+  options.openPage = options.openPage || ''
   mime.default_type = 'text/plain'
 
   const requestListener = (request, response) => {
@@ -88,7 +89,7 @@ export default function serve (options = { contentBase: '' }) {
 
         // Open browser
         if (options.open) {
-          opener(url)
+          opener(url + options.openPage)
         }
       }
     }
