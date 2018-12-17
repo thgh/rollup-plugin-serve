@@ -67,9 +67,9 @@ export default function serve (options = { contentBase: '' }) {
   // If HTTPS options are available, create an HTTPS server
   let server
   if (options.https) {
-    server = createHttpsServer(options.https, requestListener).listen(options.port)
+    server = createHttpsServer(options.https, requestListener).listen(options.port, options.host)
   } else {
-    server = createServer(requestListener).listen(options.port)
+    server = createServer(requestListener).listen(options.port, options.host)
   }
 
   closeServerOnTermination(server)
