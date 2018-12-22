@@ -6,6 +6,8 @@ import { resolve } from 'path'
 import mime from 'mime'
 import opener from 'opener'
 
+let server
+
 export default function serve (options = { contentBase: '' }) {
   if (Array.isArray(options) || typeof options === 'string') {
     options = { contentBase: options }
@@ -64,8 +66,12 @@ export default function serve (options = { contentBase: '' }) {
     })
   }
 
+  // release previous server instance if rollup is reloading configuration in watch mode
+  if (server) {
+    server.close()
+  }
+
   // If HTTPS options are available, create an HTTPS server
-  let server
   if (options.https) {
     server = createHttpsServer(options.https, requestListener).listen(options.port, options.host)
   } else {
