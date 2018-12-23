@@ -2,8 +2,17 @@
 
 All notable changes to `rollup-plugin-serve` will be documented in this file.
 
+## [0.6.1] - 2018-12-23
 ### Added
+- Add support for `rollup --watch` (Release http server on rollup reload)
+
+## [0.5.0] - 2018-09-18
+### Added
+- Allow to override path for historyApiFallback option
 - Option `openPage`
+
+### Fixed
+- Fix host option
 
 ## [0.4.2] - 2017-08-25
 ### Added
