@@ -130,7 +130,7 @@ function notFound (response, filePath) {
 }
 
 function found (response, filePath, content) {
-  response.writeHead(200, { 'Content-Type': mime.lookup(filePath) })
+  response.writeHead(200, { 'Content-Type': mime.getType(filePath) })
   response.end(content, 'utf-8')
 }
 
