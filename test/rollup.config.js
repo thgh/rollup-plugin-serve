@@ -1,11 +1,16 @@
-import serve from 'rollup-plugin-serve'
+import serve from '..'
 
 export default {
-  entry: 'entry.js',
-  dest: 'dest.js',
+  input: 'entry.js',
+  output: {
+    file: 'dest.js',
+    format: 'cjs'
+  },
   plugins: [
     serve({
-      historyApiFallback: true,
+      open: true,
+      openPage: '/frames.html',
+      historyApiFallback: '/fallback.html',
       contentBase: ['.', 'base1', 'base2']
     })
   ]
