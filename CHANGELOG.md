@@ -3,6 +3,9 @@
 All notable changes to `rollup-plugin-serve` will be documented in this file.
 
 ## [1.0.0] - unreleased
+### Fixed
+- Update `ongenerate` to `generateBundle`
+
 ### Removed
 - Remove built-in `favicon.ico` #20
 

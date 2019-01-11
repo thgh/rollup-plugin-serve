@@ -73,7 +73,7 @@ export default function serve (options = { contentBase: '' }) {
 
   return {
     name: 'serve',
-    ongenerate () {
+    generateBundle () {
       if (!running) {
         running = true
 
