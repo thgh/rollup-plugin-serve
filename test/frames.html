@@ -1,28 +1,57 @@
+<!doctype html>
 <style type="text/css">
-  *{ vertical-align: top; }
+  * {
+    vertical-align: top;
+  }
   iframe {
-    height: 80px;
+    height: 70px;
+    width: 200px;
+    border: 1px solid #ccc;
+  }
+  th {
+    padding-top: 1rem;
+    letter-spacing: 1px;
   }
 </style>
-<div>
-  <iframe src="."></iframe>
-</div>
-<div>
-  <iframe src="/"></iframe>
-</div>
-<div>
-  <iframe src="./base1"></iframe>
-  <iframe src="./base1/"></iframe>
-</div>
-<div>
-  <iframe src="./base2"></iframe>
-  <iframe src="./base2/"></iframe>
-</div>
-<div>
-  <iframe src="./test1.html"></iframe>
-  <iframe src="./base1/test1.html"></iframe>
-</div>
-<div>
-  <iframe src="./test2.html"></iframe>
-  <iframe src="./base2/test2.html"></iframe>
-</div>
+<table>
+  <tr>
+    <th></th>
+    <th>No trailing slash</th>
+    <th>Trailing slash</th>
+    <th>error.html</th>
+  </tr>
+  <tr>
+    <td>.</td>
+    <td><iframe src="."></iframe></td>
+    <td><iframe src="./"></iframe></td>
+    <td><iframe src="error.html"></iframe></td>
+  </tr>
+  <tr>
+    <td>./base1</td>
+    <td><iframe src="./base1"></iframe></td>
+    <td><iframe src="./base1/"></iframe></td>
+  </tr>
+  <tr>
+    <td>./base2</td>
+    <td><iframe src="./base2"></iframe></td>
+    <td><iframe src="./base2/"></iframe></td>
+  </tr>
+  <tr>
+    <th></th>
+    <th>./</th>
+    <th>./base1/</th>
+    <th>./base2/</th>
+  </tr>
+  <tr>
+    <td>test1.html</td>
+    <td><iframe src="./test1.html"></iframe></td>
+    <td><iframe src="./base1/test1.html"></iframe></td>
+    <td><iframe src="./base2/test1.html"></iframe></td>
+  </tr>
+  <tr>
+    <td>test2.html</td>
+    <td><iframe src="./test2.html"></iframe></td>
+    <td><iframe src="./base1/test2.html"></iframe></td>
+    <td><iframe src="./base2/test2.html"></iframe></td>
+  </tr>
+</table>

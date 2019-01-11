@@ -2,6 +2,13 @@
 
 All notable changes to `rollup-plugin-serve` will be documented in this file.
 
+## [1.0.0] - 2019-01-11
+### Fixed
+- Update `ongenerate` to `generateBundle`
+
+### Removed
+- Remove built-in `favicon.ico` #20
+
 ## [0.6.1] - 2018-12-23
 ### Added
 - Add support for `rollup --watch` (Release http server on rollup reload)
@@ -50,7 +57,10 @@ All notable changes to `rollup-plugin-serve` will be documented in this file.
 ### Added
 - Initial version
 
-[Unreleased]: https://github.com/thgh/rollup-plugin-serve/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/thgh/rollup-plugin-serve/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/thgh/rollup-plugin-serve/compare/v0.6.1...v1.0.0
+[0.6.1]: https://github.com/thgh/rollup-plugin-serve/compare/v0.5.0...v0.6.1
+[0.5.0]: https://github.com/thgh/rollup-plugin-serve/compare/v0.4.2...v0.5.0
 [0.4.2]: https://github.com/thgh/rollup-plugin-serve/compare/v0.4.1...v0.4.2
 [0.4.1]: https://github.com/thgh/rollup-plugin-serve/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/thgh/rollup-plugin-serve/compare/v0.3.0...v0.4.0

@@ -18,7 +18,11 @@
 
 ## Installation
 ```
+# Rollup v0.60+ and v1+
 npm install --save-dev rollup-plugin-serve
+
+# Rollup v0.59 and below
+npm install --save-dev rollup-plugin-serve@0
 ```
 
 ## Usage
@@ -27,7 +31,7 @@ npm install --save-dev rollup-plugin-serve
 import serve from 'rollup-plugin-serve'
 
 export default {
-  input: 'entry.js',
+  input: 'src/main.js',
   output: {
     file: 'dist/bundle.js',
     format: ...
