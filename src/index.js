@@ -36,22 +36,11 @@ export default function serve (options = { contentBase: '' }) {
         response.writeHead(500)
         response.end('500 Internal Server Error' +
           '\n\n' + filePath +
-          '\n\n' + Object.keys(error).map(function (k) {
-            return error[k]
-          }).join('\n') +
+          '\n\n' + Object.values(error).join('\n') +
           '\n\n(rollup-plugin-serve)', 'utf-8')
         return
       }
-      if (request.url === '/favicon.ico') {
-        filePath = resolve(__dirname, '../dist/favicon.ico')
-        readFile(filePath, function (error, content) {
-          if (error) {
-            notFound(response, filePath)
-          } else {
-            found(response, filePath, content)
-          }
-        })
-      } else if (options.historyApiFallback) {
+      if (options.historyApiFallback) {
         var fallbackPath = typeof options.historyApiFallback === 'string' ? options.historyApiFallback : '/index.html'
         readFileFromContentBase(options.contentBase, fallbackPath, function (error, content, filePath) {
           if (error) {
