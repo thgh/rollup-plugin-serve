@@ -2,7 +2,7 @@
 
 All notable changes to `rollup-plugin-serve` will be documented in this file.
 
-## [1.0.0] - unreleased
+## [1.0.0] - 2019-01-11
 ### Fixed
 - Update `ongenerate` to `generateBundle`
 

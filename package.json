@@ -6,10 +6,11 @@
   "module": "dist/index.es.js",
   "jsnext:main": "dist/index.es.js",
   "scripts": {
-    "build": "rollup -c -f cjs -o dist/index.cjs.js && rollup -c -f es -o dist/index.es.js",
-    "dev": "rollup -cw -f cjs -o dist/index.cjs.js",
-    "lint": "standard rollup.config.js src/**",
-    "prepare": "npm run build"
+    "build": "rollup -c",
+    "dev": "rollup -cw",
+    "lint": "standard --fix rollup.config.js src/**",
+    "prepare": "yarn lint && yarn build",
+    "test": "cd test && rollup -c || cd .."
   },
   "keywords": [
     "rollup",
@@ -36,7 +37,8 @@
     "opener": "1"
   },
   "devDependencies": {
-    "rollup": "^0.48.2",
-    "rollup-plugin-buble": "^0.15.0"
+    "rollup": "1",
+    "rollup-plugin-buble": "^0.15.0",
+    "standard": "12"
   }
 }
