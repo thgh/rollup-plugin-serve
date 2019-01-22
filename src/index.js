@@ -8,7 +8,10 @@ import opener from 'opener'
 
 let server
 
-export default function serve (options = { contentBase: '' }) {
+/**
+ * @param {ServeOptions|string|string[]} options
+ */
+function serve (options = { contentBase: '' }) {
   if (Array.isArray(options) || typeof options === 'string') {
     options = { contentBase: options }
   }
@@ -136,3 +139,26 @@ function closeServerOnTermination (server) {
     })
   })
 }
+
+export default serve
+
+/**
+ * @typedef {Object} ServeOptions
+ * @property {boolean} [open=false] Launch in browser (default: `false`)
+ * @property {string} [openPage=''] Page to navigate to when opening the browser. Will not do anything if `open` is `false`. Remember to start with a slash e.g. `'/different/page'`
+ * @property {boolean} [verbose=true] Show server address in console (default: `true`)
+ * @property {string|string[]} [contentBase=''] Folder(s) to serve files from
+ * @property {string|boolean} [historyApiFallback] Path to fallback page. Set to `true` to return index.html (200) instead of error page (404)
+ * @property {string} [host='localhost'] Server host (default: `'localhost'`)
+ * @property {number} [port=10001] Server port (default: `10001`)
+ * @property {ServeOptionsHttps} [https=false] By default server will be served over HTTP (https: `false`). It can optionally be served over HTTPS
+ * @property {{[header:string]: string}} [headers] Set headers
+ */
+
+/**
+ * @typedef {Object} ServeOptionsHttps
+ * @property {string|Buffer|Buffer[]|Object[]} key
+ * @property {string|Buffer|Array<string|Buffer>} cert
+ * @property {string|Buffer|Array<string|Buffer>} ca
+ * @see https.ServerOptions
+ */
