@@ -9,6 +9,7 @@ import opener from 'opener'
 let server
 
 /**
+ * Serve your rolled up bundle like webpack-dev-server
  * @param {ServeOptions|string|string[]} options
  */
 function serve (options = { contentBase: '' }) {
