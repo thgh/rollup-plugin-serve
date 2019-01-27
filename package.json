@@ -33,7 +33,7 @@
     "dist"
   ],
   "dependencies": {
-    "mime": "2",
+    "mime": ">=2.0.3",
     "opener": "1"
   },
   "devDependencies": {
