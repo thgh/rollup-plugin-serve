@@ -88,6 +88,13 @@ serve({
   headers: {
     'Access-Control-Allow-Origin': '*',
     foo: 'bar'
+  },
+
+  // Set up simple proxy
+  // this will route all traffic starting with
+  // `/api` to http://localhost:8181/api
+  proxy: {
+    api: 'http://localhost:8181'
   }
 })
 ```
