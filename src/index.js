@@ -1,6 +1,6 @@
 import { readFile } from 'fs'
-import { createServer as createHttpsServer } from 'https'
-import { createServer } from 'http'
+import https, { createServer as createHttpsServer } from 'https'
+import http, { createServer } from 'http'
 import { resolve } from 'path'
 
 import mime from 'mime'
@@ -22,9 +22,20 @@ function serve (options = { contentBase: '' }) {
   options.headers = options.headers || {}
   options.https = options.https || false
   options.openPage = options.openPage || ''
+  options.proxy = options.proxy || {}
   mime.default_type = 'text/plain'
 
-  const requestListener = (request, response) => {
+  // Use http or https as needed
+  const http_s = options.https ? https : http
+
+  const proxies = Object.keys(options.proxy).map(proxy => ({
+    proxy,
+    destination: options.proxy[proxy],
+    test: new RegExp(`\/${proxy}`)
+  }))
+
+
+  const requestListener = (request, response) => {    
     // Remove querystring
     const urlPath = decodeURI(request.url.split('?')[0])
 
@@ -32,31 +43,56 @@ function serve (options = { contentBase: '' }) {
       response.setHeader(key, options.headers[key])
     })
 
-    readFileFromContentBase(options.contentBase, urlPath, function (error, content, filePath) {
-      if (!error) {
-        return found(response, filePath, content)
-      }
-      if (error.code !== 'ENOENT') {
-        response.writeHead(500)
-        response.end('500 Internal Server Error' +
-          '\n\n' + filePath +
-          '\n\n' + Object.values(error).join('\n') +
-          '\n\n(rollup-plugin-serve)', 'utf-8')
-        return
-      }
-      if (options.historyApiFallback) {
-        var fallbackPath = typeof options.historyApiFallback === 'string' ? options.historyApiFallback : '/index.html'
-        readFileFromContentBase(options.contentBase, fallbackPath, function (error, content, filePath) {
-          if (error) {
-            notFound(response, filePath)
-          } else {
-            found(response, filePath, content)
-          }
+    // Find the appropriate proxy for the request if one exists
+    const proxy = proxies.find(({ test }) => request.url.match(test))
+
+    // If a proxy exists, forward the request to the appropriate server
+    if (proxy && proxy.destination) {
+      const { destination } = proxy
+      const newDestination = `${destination}${request.url}`
+      const { headers, method } = request
+      let body = '';
+
+      request.on('data', chunk => body += chunk)
+
+      request.on('end', () => {
+        const proxyRequest = http_s.get(newDestination, { headers, method }, (proxyResponse) => {
+          let data = ''
+          proxyResponse.on('data', chunk => data += chunk)
+          proxyResponse.on('end', () => {
+            Object.keys(proxyResponse.headers).forEach(key => response.setHeader(key, proxyResponse.headers[key]))
+            found(response, null, data)
+          })
         })
-      } else {
-        notFound(response, filePath)
-      }
-    })
+        proxyRequest.end(body, 'utf-8', () => console.log('ended'))
+      })
+    } else {
+      readFileFromContentBase(options.contentBase, urlPath, function (error, content, filePath) {
+        if (!error) {
+          return found(response, filePath, content)
+        }
+        if (error.code !== 'ENOENT') {
+          response.writeHead(500)
+          response.end('500 Internal Server Error' +
+            '\n\n' + filePath +
+            '\n\n' + Object.values(error).join('\n') +
+            '\n\n(rollup-plugin-serve)', 'utf-8')
+          return
+        }
+        if (options.historyApiFallback) {
+          var fallbackPath = typeof options.historyApiFallback === 'string' ? options.historyApiFallback : '/index.html'
+          readFileFromContentBase(options.contentBase, fallbackPath, function (error, content, filePath) {
+            if (error) {
+              notFound(response, filePath)
+            } else {
+              found(response, filePath, content)
+            }
+          })
+        } else {
+          notFound(response, filePath)
+        }
+      })
+    }
   }
 
   // release previous server instance if rollup is reloading configuration in watch mode
@@ -123,7 +159,11 @@ function notFound (response, filePath) {
 }
 
 function found (response, filePath, content) {
-  response.writeHead(200, { 'Content-Type': mime.getType(filePath) })
+  let headers = {}
+  if (filePath) {
+    headers = { 'Content-Type': mime.getType(filePath) }
+  }
+  response.writeHead(200, headers)
   response.end(content, 'utf-8')
 }
 
