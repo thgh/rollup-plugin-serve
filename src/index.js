@@ -51,20 +51,26 @@ function serve (options = { contentBase: '' }) {
       const { destination } = proxy
       const newDestination = `${destination}${request.url}`
       const { headers, method } = request
-      let body = '';
 
+      // Get the request contents
+      let body = '';
       request.on('data', chunk => body += chunk)
 
+      // Forward the request
       request.on('end', () => {
-        const proxyRequest = http_s.get(newDestination, { headers, method }, (proxyResponse) => {
-          let data = ''
-          proxyResponse.on('data', chunk => data += chunk)
-          proxyResponse.on('end', () => {
-            Object.keys(proxyResponse.headers).forEach(key => response.setHeader(key, proxyResponse.headers[key]))
-            found(response, null, data)
+        const proxyRequest = http_s
+          .request(newDestination, { headers, method }, (proxyResponse) => {
+            let data = ''
+            proxyResponse.on('data', chunk => data += chunk)
+            proxyResponse.on('end', () => {
+              Object.keys(proxyResponse.headers).forEach(key => response.setHeader(key, proxyResponse.headers[key]))
+              found(response, null, data)
+            })
           })
-        })
-        proxyRequest.end(body, 'utf-8', () => console.log('ended'))
+          .end(body, 'utf-8')
+          
+        proxyRequest.on('error', err => console.error(`There was a problem with the request for ${request.url}: ${err}`))
+        proxyRequest.end()
       })
     } else {
       readFileFromContentBase(options.contentBase, urlPath, function (error, content, filePath) {
