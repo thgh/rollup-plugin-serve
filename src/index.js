@@ -50,7 +50,7 @@ function serve (options = { contentBase: '' }) {
     if (proxy && proxy.destination) {
       const { destination } = proxy
       const newDestination = `${destination}${request.url}`
-      const { headers, method } = request
+      const { headers, method, statusCode } = request
 
       // Get the request contents
       let body = '';
@@ -64,7 +64,7 @@ function serve (options = { contentBase: '' }) {
             proxyResponse.on('data', chunk => data += chunk)
             proxyResponse.on('end', () => {
               Object.keys(proxyResponse.headers).forEach(key => response.setHeader(key, proxyResponse.headers[key]))
-              found(response, null, data)
+              foundProxy(response, proxyResponse.statusCode, data)
             })
           })
           .end(body, 'utf-8')
@@ -165,11 +165,12 @@ function notFound (response, filePath) {
 }
 
 function found (response, filePath, content) {
-  let headers = {}
-  if (filePath) {
-    headers = { 'Content-Type': mime.getType(filePath) }
-  }
-  response.writeHead(200, headers)
+  response.writeHead(200, { 'Content-Type': mime.getType(filePath) })
+  response.end(content, 'utf-8')
+}
+
+function foundProxy (response, status, content) {
+  response.writeHead(status)
   response.end(content, 'utf-8')
 }
 
