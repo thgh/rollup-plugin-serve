@@ -17,7 +17,6 @@ function serve (options = { contentBase: '' }) {
     options = { contentBase: options }
   }
   options.contentBase = Array.isArray(options.contentBase) ? options.contentBase : [options.contentBase]
-  options.host = options.host || 'localhost'
   options.port = options.port || 10001
   options.headers = options.headers || {}
   options.https = options.https || false
@@ -82,7 +81,7 @@ function serve (options = { contentBase: '' }) {
         running = true
 
         // Log which url to visit
-        const url = (options.https ? 'https' : 'http') + '://' + options.host + ':' + options.port
+        const url = (options.https ? 'https' : 'http') + '://' + (options.host || 'localhost') + ':' + options.port
         options.contentBase.forEach(base => {
           console.log(green(url) + ' -> ' + resolve(base))
         })
