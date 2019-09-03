@@ -147,10 +147,11 @@ function found (response, filePath, content, rangeSta, rangeEnd) {
   if (rangeSta !== 0 || rangeEnd !== 0) {
     statusCode = 206;
     var len = content.length;
+    var maxEnd = len - 1;
     if (rangeEnd === 0) {
-      rangeEnd = len;
+      rangeEnd = maxEnd;
     }
-    rangeEnd = Math.min(len, rangeEnd);
+    rangeEnd = Math.min(maxEnd, rangeEnd);
     content = content.slice(rangeSta, rangeEnd);
     headers['Accept-Ranges'] = 'bytes';
     headers['Content-Range'] = "bytes " + rangeSta + "-" + rangeEnd + "/" + len;
