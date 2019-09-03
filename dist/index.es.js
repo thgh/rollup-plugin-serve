@@ -1,43 +1,46 @@
-import { readFile } from 'fs'
-import { createServer as createHttpsServer } from 'https'
-import { createServer } from 'http'
-import { resolve } from 'path'
+import { readFile } from 'fs';
+import { createServer } from 'https';
+import { createServer as createServer$1 } from 'http';
+import { resolve } from 'path';
+import mime from 'mime';
+import opener from 'opener';
 
-import mime from 'mime'
-import opener from 'opener'
-
-let server
+var server;
 
 /**
  * Serve your rolled up bundle like webpack-dev-server
  * @param {ServeOptions|string|string[]} options
  */
-function serve (options = { contentBase: '' }) {
+function serve (options) {
+  if ( options === void 0 ) options = { contentBase: '' };
+
   if (Array.isArray(options) || typeof options === 'string') {
-    options = { contentBase: options }
+    options = { contentBase: options };
   }
-  options.contentBase = Array.isArray(options.contentBase) ? options.contentBase : [options.contentBase]
-  options.host = options.host || 'localhost'
-  options.port = options.port || 10001
-  options.headers = options.headers || {}
-  options.https = options.https || false
-  options.openPage = options.openPage || ''
-  mime.default_type = 'text/plain'
+  options.contentBase = Array.isArray(options.contentBase) ? options.contentBase : [options.contentBase];
+  options.host = options.host || 'localhost';
+  options.port = options.port || 10001;
+  options.headers = options.headers || {};
+  options.https = options.https || false;
+  options.openPage = options.openPage || '';
+  mime.default_type = 'text/plain';
 
-  const requestListener = (request, response) => {
+  var requestListener = function (request, response) {
     // Remove querystring
-    const urlPath = decodeURI(request.url.split('?')[0])
+    var urlPath = decodeURI(request.url.split('?')[0]);
 
-    Object.keys(options.headers).forEach((key) => {
-      response.setHeader(key, options.headers[key])
-    })
+    Object.keys(options.headers).forEach(function (key) {
+      response.setHeader(key, options.headers[key]);
+    });
 
     // Get range request header, For example: `range: bytes=0-5``
-    const range = request.headers["range"];
-    let rangeSta = 0;
-    let rangeEnd = 0;
+    var range = request.headers["range"];
+    var rangeSta = 0;
+    var rangeEnd = 0;
     if (range) {
-      const [, start, end] = range.match(/(\d*)-(\d*)/);
+      var ref = range.match(/(\d*)-(\d*)/);
+      var start = ref[1];
+      var end = ref[2];
       rangeSta = +start || 0;
       rangeEnd = +end || 0;
     }
@@ -47,59 +50,59 @@ function serve (options = { contentBase: '' }) {
         return found(response, filePath, content, rangeSta, rangeEnd)
       }
       if (error.code !== 'ENOENT') {
-        response.writeHead(500)
+        response.writeHead(500);
         response.end('500 Internal Server Error' +
           '\n\n' + filePath +
           '\n\n' + Object.values(error).join('\n') +
-          '\n\n(rollup-plugin-serve)', 'utf-8')
+          '\n\n(rollup-plugin-serve)', 'utf-8');
         return
       }
       if (options.historyApiFallback) {
-        var fallbackPath = typeof options.historyApiFallback === 'string' ? options.historyApiFallback : '/index.html'
+        var fallbackPath = typeof options.historyApiFallback === 'string' ? options.historyApiFallback : '/index.html';
         readFileFromContentBase(options.contentBase, fallbackPath, function (error, content, filePath) {
           if (error) {
-            notFound(response, filePath)
+            notFound(response, filePath);
           } else {
-            found(response, filePath, content, rangeSta, rangeEnd)
+            found(response, filePath, content, rangeSta, rangeEnd);
           }
-        })
+        });
       } else {
-        notFound(response, filePath)
+        notFound(response, filePath);
       }
-    })
-  }
+    });
+  };
 
   // release previous server instance if rollup is reloading configuration in watch mode
   if (server) {
-    server.close()
+    server.close();
   }
 
   // If HTTPS options are available, create an HTTPS server
   if (options.https) {
-    server = createHttpsServer(options.https, requestListener).listen(options.port, options.host)
+    server = createServer(options.https, requestListener).listen(options.port, options.host);
   } else {
-    server = createServer(requestListener).listen(options.port, options.host)
+    server = createServer$1(requestListener).listen(options.port, options.host);
   }
 
-  closeServerOnTermination(server)
+  closeServerOnTermination(server);
 
-  var running = options.verbose === false
+  var running = options.verbose === false;
 
   return {
     name: 'serve',
-    generateBundle () {
+    generateBundle: function generateBundle () {
       if (!running) {
-        running = true
+        running = true;
 
         // Log which url to visit
-        const url = (options.https ? 'https' : 'http') + '://' + options.host + ':' + options.port
-        options.contentBase.forEach(base => {
-          console.log(green(url) + ' -> ' + resolve(base))
-        })
+        var url = (options.https ? 'https' : 'http') + '://' + options.host + ':' + options.port;
+        options.contentBase.forEach(function (base) {
+          console.log(green(url) + ' -> ' + resolve(base));
+        });
 
         // Open browser
         if (options.open) {
-          opener(url + options.openPage)
+          opener(url + options.openPage);
         }
       }
     }
@@ -107,50 +110,50 @@ function serve (options = { contentBase: '' }) {
 }
 
 function readFileFromContentBase (contentBase, urlPath, callback) {
-  let filePath = resolve(contentBase[0] || '.', '.' + urlPath)
+  var filePath = resolve(contentBase[0] || '.', '.' + urlPath);
 
   // Load index.html in directories
   if (urlPath.endsWith('/')) {
-    filePath = resolve(filePath, 'index.html')
+    filePath = resolve(filePath, 'index.html');
   }
 
-  readFile(filePath, (error, content) => {
+  readFile(filePath, function (error, content) {
     if (error && contentBase.length > 1) {
       // Try to read from next contentBase
-      readFileFromContentBase(contentBase.slice(1), urlPath, callback)
+      readFileFromContentBase(contentBase.slice(1), urlPath, callback);
     } else {
       // We know enough
-      callback(error, content, filePath)
+      callback(error, content, filePath);
     }
-  })
+  });
 }
 
 function notFound (response, filePath) {
-  response.writeHead(404)
+  response.writeHead(404);
   response.end('404 Not Found' +
     '\n\n' + filePath +
-    '\n\n(rollup-plugin-serve)', 'utf-8')
+    '\n\n(rollup-plugin-serve)', 'utf-8');
 }
 
 function found (response, filePath, content, rangeSta, rangeEnd) {
-  const headers = { 
+  var headers = { 
     'Content-Type': mime.getType(filePath) 
-  }
-  let statusCode = 200;
+  };
+  var statusCode = 200;
   if(rangeSta !== 0 || rangeEnd !== 0) {
     statusCode = 206;
-    const len = content.length;
+    var len = content.length;
     if(rangeEnd === 0) {
       rangeEnd = len;
     }
     rangeEnd = Math.min(len, rangeEnd);
     content = content.slice(rangeSta, rangeEnd);
     headers['Accept-Ranges'] = 'bytes';
-    headers['Content-Range'] = `bytes ${rangeSta}-${rangeEnd}/${len}`;
+    headers['Content-Range'] = "bytes " + rangeSta + "-" + rangeEnd + "/" + len;
   }
   headers['Content-Length'] = content.length;
-  response.writeHead(statusCode, headers)
-  response.end(content, 'utf-8')
+  response.writeHead(statusCode, headers);
+  response.end(content, 'utf-8');
 }
 
 function green (text) {
@@ -158,16 +161,14 @@ function green (text) {
 }
 
 function closeServerOnTermination (server) {
-  const terminationSignals = ['SIGINT', 'SIGTERM']
-  terminationSignals.forEach((signal) => {
-    process.on(signal, () => {
-      server.close()
-      process.exit()
-    })
-  })
+  var terminationSignals = ['SIGINT', 'SIGTERM'];
+  terminationSignals.forEach(function (signal) {
+    process.on(signal, function () {
+      server.close();
+      process.exit();
+    });
+  });
 }
-
-export default serve
 
 /**
  * @typedef {Object} ServeOptions
@@ -189,3 +190,5 @@ export default serve
  * @property {string|Buffer|Array<string|Buffer>} ca
  * @see https.ServerOptions
  */
+
+export default serve;
