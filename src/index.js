@@ -33,13 +33,13 @@ function serve (options = { contentBase: '' }) {
     })
 
     // Get range request header, For example: `range: bytes=0-5``
-    const range = request.headers["range"];
-    let rangeSta = 0;
-    let rangeEnd = 0;
+    const range = request.headers['range']
+    let rangeSta = 0
+    let rangeEnd = 0
     if (range) {
-      const [, start, end] = range.match(/(\d*)-(\d*)/);
-      rangeSta = +start || 0;
-      rangeEnd = +end || 0;
+      const [, start, end] = range.match(/(\d*)-(\d*)/)
+      rangeSta = +start || 0
+      rangeEnd = +end || 0
     }
 
     readFileFromContentBase(options.contentBase, urlPath, function (error, content, filePath) {
@@ -133,22 +133,22 @@ function notFound (response, filePath) {
 }
 
 function found (response, filePath, content, rangeSta, rangeEnd) {
-  const headers = { 
-    'Content-Type': mime.getType(filePath) 
+  const headers = {
+    'Content-Type': mime.getType(filePath)
   }
-  let statusCode = 200;
-  if(rangeSta !== 0 || rangeEnd !== 0) {
-    statusCode = 206;
-    const len = content.length;
-    if(rangeEnd === 0) {
-      rangeEnd = len;
+  let statusCode = 200
+  if (rangeSta !== 0 || rangeEnd !== 0) {
+    statusCode = 206
+    const len = content.length
+    if (rangeEnd === 0) {
+      rangeEnd = len
     }
-    rangeEnd = Math.min(len, rangeEnd);
-    content = content.slice(rangeSta, rangeEnd);
-    headers['Accept-Ranges'] = 'bytes';
-    headers['Content-Range'] = `bytes ${rangeSta}-${rangeEnd}/${len}`;
+    rangeEnd = Math.min(len, rangeEnd)
+    content = content.slice(rangeSta, rangeEnd)
+    headers['Accept-Ranges'] = 'bytes'
+    headers['Content-Range'] = `bytes ${rangeSta}-${rangeEnd}/${len}`
   }
-  headers['Content-Length'] = content.length;
+  headers['Content-Length'] = content.length
   response.writeHead(statusCode, headers)
   response.end(content, 'utf-8')
 }

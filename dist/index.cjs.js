@@ -38,7 +38,7 @@ function serve (options) {
     });
 
     // Get range request header, For example: `range: bytes=0-5``
-    var range = request.headers["range"];
+    var range = request.headers['range'];
     var rangeSta = 0;
     var rangeEnd = 0;
     if (range) {
@@ -140,14 +140,14 @@ function notFound (response, filePath) {
 }
 
 function found (response, filePath, content, rangeSta, rangeEnd) {
-  var headers = { 
-    'Content-Type': mime.getType(filePath) 
+  var headers = {
+    'Content-Type': mime.getType(filePath)
   };
   var statusCode = 200;
-  if(rangeSta !== 0 || rangeEnd !== 0) {
+  if (rangeSta !== 0 || rangeEnd !== 0) {
     statusCode = 206;
     var len = content.length;
-    if(rangeEnd === 0) {
+    if (rangeEnd === 0) {
       rangeEnd = len;
     }
     rangeEnd = Math.min(len, rangeEnd);
