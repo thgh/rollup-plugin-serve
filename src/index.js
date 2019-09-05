@@ -32,9 +32,19 @@ function serve (options = { contentBase: '' }) {
       response.setHeader(key, options.headers[key])
     })
 
+    // Get range request header, For example: `range: bytes=0-5``
+    const range = request.headers['range']
+    let rangeSta = 0
+    let rangeEnd = 0
+    if (range) {
+      const [, start, end] = range.match(/(\d*)-(\d*)/)
+      rangeSta = +start || 0
+      rangeEnd = +end || 0
+    }
+
     readFileFromContentBase(options.contentBase, urlPath, function (error, content, filePath) {
       if (!error) {
-        return found(response, filePath, content)
+        return found(response, filePath, content, rangeSta, rangeEnd)
       }
       if (error.code !== 'ENOENT') {
         response.writeHead(500)
@@ -50,7 +60,7 @@ function serve (options = { contentBase: '' }) {
           if (error) {
             notFound(response, filePath)
           } else {
-            found(response, filePath, content)
+            found(response, filePath, content, rangeSta, rangeEnd)
           }
         })
       } else {
@@ -122,8 +132,25 @@ function notFound (response, filePath) {
     '\n\n(rollup-plugin-serve)', 'utf-8')
 }
 
-function found (response, filePath, content) {
-  response.writeHead(200, { 'Content-Type': mime.getType(filePath) })
+function found (response, filePath, content, rangeSta, rangeEnd) {
+  const headers = {
+    'Content-Type': mime.getType(filePath)
+  }
+  let statusCode = 200
+  if (rangeSta !== 0 || rangeEnd !== 0) {
+    statusCode = 206
+    const len = content.length
+    const maxEnd = len - 1;
+    if (rangeEnd === 0) {
+      rangeEnd = maxEnd
+    }
+    rangeEnd = Math.min(maxEnd, rangeEnd)
+    content = content.slice(rangeSta, rangeEnd)
+    headers['Accept-Ranges'] = 'bytes'
+    headers['Content-Range'] = `bytes ${rangeSta}-${rangeEnd}/${len}`
+  }
+  headers['Content-Length'] = content.length
+  response.writeHead(statusCode, headers)
   response.end(content, 'utf-8')
 }
 
