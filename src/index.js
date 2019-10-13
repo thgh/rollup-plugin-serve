@@ -45,7 +45,7 @@ function serve (options = { contentBase: '' }) {
         return
       }
       if (options.historyApiFallback) {
-        var fallbackPath = typeof options.historyApiFallback === 'string' ? options.historyApiFallback : '/index.html'
+        const fallbackPath = typeof options.historyApiFallback === 'string' ? options.historyApiFallback : '/index.html'
         readFileFromContentBase(options.contentBase, fallbackPath, function (error, content, filePath) {
           if (error) {
             notFound(response, filePath)
@@ -73,7 +73,7 @@ function serve (options = { contentBase: '' }) {
 
   closeServerOnTermination(server)
 
-  var running = options.verbose === false
+  let running = options.verbose === false
 
   return {
     name: 'serve',
