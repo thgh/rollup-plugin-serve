@@ -89,7 +89,11 @@ function serve (options = { contentBase: '' }) {
 
         // Open browser
         if (options.open) {
-          opener(url + options.openPage)
+          if (/https?:\/\/.+/.test(options.openPage)) {
+            opener(options.openPage)
+          } else {
+            opener(url + options.openPage)
+          }
         }
       }
     }
