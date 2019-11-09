@@ -16,8 +16,7 @@ function serve (options = { contentBase: '' }) {
   if (Array.isArray(options) || typeof options === 'string') {
     options = { contentBase: options }
   }
-  options.contentBase = Array.isArray(options.contentBase) ? options.contentBase : [(options.contentBase || '')]
-  options.host = options.host || 'localhost'
+  options.contentBase = Array.isArray(options.contentBase) ? options.contentBase : [options.contentBase || '']
   options.port = options.port || 10001
   options.headers = options.headers || {}
   options.https = options.https || false
@@ -45,7 +44,7 @@ function serve (options = { contentBase: '' }) {
         return
       }
       if (options.historyApiFallback) {
-        var fallbackPath = typeof options.historyApiFallback === 'string' ? options.historyApiFallback : '/index.html'
+        const fallbackPath = typeof options.historyApiFallback === 'string' ? options.historyApiFallback : '/index.html'
         readFileFromContentBase(options.contentBase, fallbackPath, function (error, content, filePath) {
           if (error) {
             notFound(response, filePath)
@@ -62,6 +61,8 @@ function serve (options = { contentBase: '' }) {
   // release previous server instance if rollup is reloading configuration in watch mode
   if (server) {
     server.close()
+  } else {
+    closeServerOnTermination()
   }
 
   // If HTTPS options are available, create an HTTPS server
@@ -71,9 +72,7 @@ function serve (options = { contentBase: '' }) {
     server = createServer(requestListener).listen(options.port, options.host)
   }
 
-  closeServerOnTermination(server)
-
-  var running = options.verbose === false
+  let running = options.verbose === false
 
   return {
     name: 'serve',
@@ -82,14 +81,18 @@ function serve (options = { contentBase: '' }) {
         running = true
 
         // Log which url to visit
-        const url = (options.https ? 'https' : 'http') + '://' + options.host + ':' + options.port
+        const url = (options.https ? 'https' : 'http') + '://' + (options.host || 'localhost') + ':' + options.port
         options.contentBase.forEach(base => {
           console.log(green(url) + ' -> ' + resolve(base))
         })
 
         // Open browser
         if (options.open) {
-          opener(url + options.openPage)
+          if (/https?:\/\/.+/.test(options.openPage)) {
+            opener(options.openPage)
+          } else {
+            opener(url + options.openPage)
+          }
         }
       }
     }
@@ -131,12 +134,14 @@ function green (text) {
   return '\u001b[1m\u001b[32m' + text + '\u001b[39m\u001b[22m'
 }
 
-function closeServerOnTermination (server) {
-  const terminationSignals = ['SIGINT', 'SIGTERM']
-  terminationSignals.forEach((signal) => {
+function closeServerOnTermination() {
+  const terminationSignals = ['SIGINT', 'SIGTERM', 'SIGQUIT', 'SIGHUP']
+  terminationSignals.forEach(signal => {
     process.on(signal, () => {
-      server.close()
-      process.exit()
+      if (server) {
+        server.close()
+        process.exit()
+      }
     })
   })
 }
