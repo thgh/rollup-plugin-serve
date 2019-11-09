@@ -16,7 +16,7 @@ function serve (options = { contentBase: '' }) {
   if (Array.isArray(options) || typeof options === 'string') {
     options = { contentBase: options }
   }
-  options.contentBase = Array.isArray(options.contentBase) ? options.contentBase : [options.contentBase]
+  options.contentBase = Array.isArray(options.contentBase) ? options.contentBase : [options.contentBase || '']
   options.port = options.port || 10001
   options.headers = options.headers || {}
   options.https = options.https || false
