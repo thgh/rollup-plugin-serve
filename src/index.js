@@ -132,7 +132,7 @@ function green (text) {
 }
 
 function closeServerOnTermination (server) {
-  const terminationSignals = ['SIGINT', 'SIGTERM']
+  const terminationSignals = ['SIGINT', 'SIGTERM', 'SIGQUIT', 'SIGHUP']
   terminationSignals.forEach((signal) => {
     process.on(signal, () => {
       server.close()
