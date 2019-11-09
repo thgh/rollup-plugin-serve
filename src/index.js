@@ -61,6 +61,8 @@ function serve (options = { contentBase: '' }) {
   // release previous server instance if rollup is reloading configuration in watch mode
   if (server) {
     server.close()
+  } else {
+    closeServerOnTermination()
   }
 
   // If HTTPS options are available, create an HTTPS server
@@ -69,8 +71,6 @@ function serve (options = { contentBase: '' }) {
   } else {
     server = createServer(requestListener).listen(options.port, options.host)
   }
-
-  closeServerOnTermination(server)
 
   let running = options.verbose === false
 
@@ -134,12 +134,14 @@ function green (text) {
   return '\u001b[1m\u001b[32m' + text + '\u001b[39m\u001b[22m'
 }
 
-function closeServerOnTermination (server) {
+function closeServerOnTermination() {
   const terminationSignals = ['SIGINT', 'SIGTERM', 'SIGQUIT', 'SIGHUP']
-  terminationSignals.forEach((signal) => {
+  terminationSignals.forEach(signal => {
     process.on(signal, () => {
-      server.close()
-      process.exit()
+      if (server) {
+        server.close()
+        process.exit()
+      }
     })
   })
 }
