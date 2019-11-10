@@ -8,7 +8,7 @@
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -cw",
-    "lint": "standard --fix rollup.config.js src/**",
+    "lint": "prettier --write rollup.config.js src/**",
     "prepare": "yarn lint && yarn build",
     "test": "cd test && rollup -c || cd .."
   },
@@ -32,13 +32,24 @@
   "files": [
     "dist"
   ],
-  "dependencies": {
-    "mime": ">=2.0.3",
-    "opener": "1"
-  },
   "devDependencies": {
+    "connect-compose": "0.0.1",
+    "opener": "1",
+    "prettier": "^1.19.1",
     "rollup": "1",
     "rollup-plugin-buble": "^0.15.0",
-    "standard": "14"
+    "rollup-plugin-commonjs": "^10.1.0",
+    "rollup-plugin-node-resolve": "^5.2.0",
+    "sirv": "^0.4.2"
+  },
+  "prettier": {
+    "trailingComma": "none",
+    "semi": false,
+    "singleQuote": true
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "pretty-quick --pattern \"**/*.(js|html)\" --staged"
+    }
   }
 }

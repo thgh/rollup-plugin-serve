@@ -1,4 +1,4 @@
-import serve from '..'
+import serve from '../dist/index.es'
 
 export default {
   input: 'entry.js',

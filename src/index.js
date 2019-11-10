@@ -1,10 +1,10 @@
-import { readFile } from 'fs'
 import { createServer as createHttpsServer } from 'https'
 import { createServer } from 'http'
 import { resolve } from 'path'
 
-import mime from 'mime'
 import opener from 'opener'
+import sirv from 'sirv'
+import compose from 'connect-compose'
 
 let server
 
@@ -12,76 +12,84 @@ let server
  * Serve your rolled up bundle like webpack-dev-server
  * @param {ServeOptions|string|string[]} options
  */
-function serve (options = { contentBase: '' }) {
+export default function serve(options = { contentBase: '' }) {
   if (Array.isArray(options) || typeof options === 'string') {
     options = { contentBase: options }
   }
-  options.contentBase = Array.isArray(options.contentBase) ? options.contentBase : [options.contentBase || '']
+  options.contentBase = Array.isArray(options.contentBase)
+    ? options.contentBase
+    : [options.contentBase || '']
   options.port = options.port || 10001
   options.headers = options.headers || {}
   options.https = options.https || false
   options.openPage = options.openPage || ''
-  mime.default_type = 'text/plain'
 
-  const requestListener = (request, response) => {
-    // Remove querystring
-    const urlPath = decodeURI(request.url.split('?')[0])
-
-    Object.keys(options.headers).forEach((key) => {
-      response.setHeader(key, options.headers[key])
-    })
-
-    readFileFromContentBase(options.contentBase, urlPath, function (error, content, filePath) {
-      if (!error) {
-        return found(response, filePath, content)
-      }
-      if (error.code !== 'ENOENT') {
-        response.writeHead(500)
-        response.end('500 Internal Server Error' +
-          '\n\n' + filePath +
-          '\n\n' + Object.values(error).join('\n') +
-          '\n\n(rollup-plugin-serve)', 'utf-8')
-        return
-      }
-      if (options.historyApiFallback) {
-        const fallbackPath = typeof options.historyApiFallback === 'string' ? options.historyApiFallback : '/index.html'
-        readFileFromContentBase(options.contentBase, fallbackPath, function (error, content, filePath) {
-          if (error) {
-            notFound(response, filePath)
-          } else {
-            found(response, filePath, content)
-          }
-        })
-      } else {
-        notFound(response, filePath)
-      }
-    })
-  }
-
-  // release previous server instance if rollup is reloading configuration in watch mode
+  // Release previous server instance if rollup is reloading configuration in watch mode
   if (server) {
     server.close()
   } else {
     closeServerOnTermination()
   }
 
+  // Serve all folders
+  const middlewares = options.contentBase.map(base => sirv(base, { dev: true }))
+
+  // Send custom headers
+  if (options.headers) {
+    middlewares.unshift(setHeaders)
+  }
+
+  // Fallback to another page
+  let { historyApiFallback: fallback } = options
+  if (fallback) {
+    // Defaults to index.html, sirv know where to look
+    fallback = typeof fallback === 'string' ? fallback : '/'
+
+    // Must start with /
+    fallback = (fallback.startsWith('/') ? '' : '/') + fallback
+
+    // Swap out the requested page with the fallback page
+    middlewares.push((req, res, next) => {
+      req.originalUrl = req.url
+      req.url = fallback
+      next()
+    })
+
+    // Serve the static files again, this time looking for the fallback page
+    const serveStatic = middlewares.slice(-3, -1)
+    serveStatic.forEach(middleware => middlewares.push(middleware))
+  }
+
+  middlewares.push(errorPage)
+
+  // Combine all middlewares into one
+  const app = compose(middlewares)
+
   // If HTTPS options are available, create an HTTPS server
   if (options.https) {
-    server = createHttpsServer(options.https, requestListener).listen(options.port, options.host)
+    server = createHttpsServer(options.https, app).listen(
+      options.port,
+      options.host
+    )
   } else {
-    server = createServer(requestListener).listen(options.port, options.host)
+    server = createServer(app).listen(options.port, options.host)
   }
 
   let running = options.verbose === false
 
   return {
     name: 'serve',
-    generateBundle () {
+    generateBundle() {
       if (!running) {
         running = true
 
         // Log which url to visit
-        const url = (options.https ? 'https' : 'http') + '://' + (options.host || 'localhost') + ':' + options.port
+        const url =
+          (options.https ? 'https' : 'http') +
+          '://' +
+          (options.host || 'localhost') +
+          ':' +
+          options.port
         options.contentBase.forEach(base => {
           console.log(green(url) + ' -> ' + resolve(base))
         })
@@ -97,40 +105,24 @@ function serve (options = { contentBase: '' }) {
       }
     }
   }
-}
 
-function readFileFromContentBase (contentBase, urlPath, callback) {
-  let filePath = resolve(contentBase[0] || '.', '.' + urlPath)
-
-  // Load index.html in directories
-  if (urlPath.endsWith('/')) {
-    filePath = resolve(filePath, 'index.html')
+  function setHeaders(req, res, next) {
+    Object.keys(options.headers).forEach(key => {
+      res.setHeader(key, options.headers[key])
+    })
+    next()
   }
 
-  readFile(filePath, (error, content) => {
-    if (error && contentBase.length > 1) {
-      // Try to read from next contentBase
-      readFileFromContentBase(contentBase.slice(1), urlPath, callback)
-    } else {
-      // We know enough
-      callback(error, content, filePath)
-    }
-  })
+  function errorPage(req, res) {
+    res.writeHead(404)
+    res.end(
+      '404 Not Found' + '\n\n' + req.originalUrl + '\n\n(rollup-plugin-serve)',
+      'utf-8'
+    )
+  }
 }
 
-function notFound (response, filePath) {
-  response.writeHead(404)
-  response.end('404 Not Found' +
-    '\n\n' + filePath +
-    '\n\n(rollup-plugin-serve)', 'utf-8')
-}
-
-function found (response, filePath, content) {
-  response.writeHead(200, { 'Content-Type': mime.getType(filePath) })
-  response.end(content, 'utf-8')
-}
-
-function green (text) {
+function green(text) {
   return '\u001b[1m\u001b[32m' + text + '\u001b[39m\u001b[22m'
 }
 
@@ -145,8 +137,6 @@ function closeServerOnTermination() {
     })
   })
 }
-
-export default serve
 
 /**
  * @typedef {Object} ServeOptions

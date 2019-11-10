@@ -1,4 +1,6 @@
 import buble from 'rollup-plugin-buble'
+import resolve from 'rollup-plugin-node-resolve'
+import commonjs from 'rollup-plugin-commonjs'
 
 export default {
   input: 'src/index.js',
@@ -6,10 +8,8 @@ export default {
     { file: 'dist/index.cjs.js', format: 'cjs' },
     { file: 'dist/index.es.js', format: 'esm' }
   ],
-  plugins: [buble()],
-  onwarn ({ code, message }) {
-    if (code !== 'UNRESOLVED_IMPORT') {
-      console.warn(message)
-    }
-  }
+  plugins: [commonjs(), resolve(), buble()],
+  external: [].concat(
+    require('module').builtinModules || Object.keys(process.binding('natives'))
+  )
 }
