@@ -24,7 +24,7 @@ function serve (options = { contentBase: '' }) {
   mime.default_type = 'text/plain'
 
   if (options.mimeTypes) {
-    mime.define(options.mimeTypes)
+    mime.define(options.mimeTypes, true)
   }
 
   const requestListener = (request, response) => {
