@@ -88,6 +88,11 @@ serve({
   headers: {
     'Access-Control-Allow-Origin': '*',
     foo: 'bar'
+  },
+
+  // set custom mime types, usage https://github.com/broofa/mime#mimedefinetypemap-force--false
+  mimeTypes: {
+    'application/javascript': ['js_commonjs-proxy']
   }
 })
 ```

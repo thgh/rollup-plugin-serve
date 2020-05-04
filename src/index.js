@@ -23,6 +23,10 @@ function serve (options = { contentBase: '' }) {
   options.openPage = options.openPage || ''
   mime.default_type = 'text/plain'
 
+  if (options.mimeTypes) {
+    mime.define(options.mimeTypes)
+  }
+
   const requestListener = (request, response) => {
     // Remove querystring
     const urlPath = decodeURI(request.url.split('?')[0])
