@@ -37,8 +37,8 @@
     "opener": "1"
   },
   "devDependencies": {
-    "rollup": "1",
-    "rollup-plugin-buble": "^0.15.0",
-    "standard": "12"
+    "rollup": "2",
+    "@rollup/plugin-buble": "0.21.3",
+    "standard": "14"
   }
 }
