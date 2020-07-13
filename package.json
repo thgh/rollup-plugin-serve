@@ -10,7 +10,7 @@
     "dev": "rollup -cw",
     "lint": "standard --fix rollup.config.js src/**",
     "prepare": "yarn lint && yarn build",
-    "test": "cd test && rollup -c || cd .."
+    "test": "cd test && rollup -cw || cd .."
   },
   "keywords": [
     "rollup",
@@ -37,8 +37,8 @@
     "opener": "1"
   },
   "devDependencies": {
-    "rollup": "2",
     "@rollup/plugin-buble": "0.21.3",
+    "rollup": "2",
     "standard": "14"
   }
 }
