@@ -2,6 +2,10 @@
 
 All notable changes to `rollup-plugin-serve` will be documented in this file.
 
+## [1.0.2] - 2020-07-17
+### Fixed
+- Fix path traversal issue
+
 ## [1.0.1] - 2019-01-27
 ### Added
 - Add Intellisense support #34

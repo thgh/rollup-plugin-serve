@@ -1,7 +1,7 @@
 import { readFile } from 'fs'
 import { createServer as createHttpsServer } from 'https'
 import { createServer } from 'http'
-import { resolve } from 'path'
+import { resolve, normalize } from 'path'
 
 import mime from 'mime'
 import opener from 'opener'
@@ -26,7 +26,10 @@ function serve (options = { contentBase: '' }) {
 
   const requestListener = (request, response) => {
     // Remove querystring
-    const urlPath = decodeURI(request.url.split('?')[0])
+    const unsafePath = decodeURI(request.url.split('?')[0])
+
+    // Don't allow path traversal
+    const urlPath = normalize(unsafePath)
 
     Object.keys(options.headers).forEach((key) => {
       response.setHeader(key, options.headers[key])
