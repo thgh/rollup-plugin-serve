@@ -1,7 +1,7 @@
 import { readFile } from 'fs'
 import { createServer as createHttpsServer } from 'https'
 import { createServer } from 'http'
-import { resolve } from 'path'
+import { resolve, posix } from 'path'
 
 import mime from 'mime'
 import opener from 'opener'
@@ -25,7 +25,10 @@ function serve (options = { contentBase: '' }) {
 
   const requestListener = (request, response) => {
     // Remove querystring
-    const urlPath = decodeURI(request.url.split('?')[0])
+    const unsafePath = decodeURI(request.url.split('?')[0])
+
+    // Don't allow path traversal
+    const urlPath = posix.normalize(unsafePath)
 
     Object.keys(options.headers).forEach((key) => {
       response.setHeader(key, options.headers[key])
@@ -134,7 +137,7 @@ function green (text) {
   return '\u001b[1m\u001b[32m' + text + '\u001b[39m\u001b[22m'
 }
 
-function closeServerOnTermination() {
+function closeServerOnTermination () {
   const terminationSignals = ['SIGINT', 'SIGTERM', 'SIGQUIT', 'SIGHUP']
   terminationSignals.forEach(signal => {
     process.on(signal, () => {
