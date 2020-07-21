@@ -23,6 +23,10 @@ function serve (options = { contentBase: '' }) {
   options.openPage = options.openPage || ''
   mime.default_type = 'text/plain'
 
+  if (options.mimeTypes) {
+    mime.define(options.mimeTypes, true)
+  }
+
   const requestListener = (request, response) => {
     // Remove querystring
     const urlPath = decodeURI(request.url.split('?')[0])
@@ -134,7 +138,7 @@ function green (text) {
   return '\u001b[1m\u001b[32m' + text + '\u001b[39m\u001b[22m'
 }
 
-function closeServerOnTermination() {
+function closeServerOnTermination () {
   const terminationSignals = ['SIGINT', 'SIGTERM', 'SIGQUIT', 'SIGHUP']
   terminationSignals.forEach(signal => {
     process.on(signal, () => {
