@@ -2,6 +2,10 @@
 
 All notable changes to `rollup-plugin-serve` will be documented in this file.
 
+## [1.0.3] - 2020-07-21
+### Fixed
+- Fix path.normalize error on Windows
+
 ## [1.0.2] - 2020-07-17
 ### Fixed
 - Fix path traversal issue
