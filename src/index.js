@@ -76,9 +76,14 @@ function serve (options = { contentBase: '' }) {
     server = createServer(requestListener).listen(options.port, options.host)
   }
 
+  let running = options.verbose === false
+
   return {
     name: 'serve',
     generateBundle () {
+      if (!running) {
+        running = true
+
         // Log which url to visit
         const url = (options.https ? 'https' : 'http') + '://' + (options.host || 'localhost') + ':' + options.port
         if (options.verbose) {
@@ -95,6 +100,7 @@ function serve (options = { contentBase: '' }) {
             opener(url + options.openPage)
           }
         }
+      }
     }
   }
 }
