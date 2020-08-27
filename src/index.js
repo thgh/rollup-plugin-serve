@@ -89,9 +89,11 @@ function serve (options = { contentBase: '' }) {
 
         // Log which url to visit
         const url = (options.https ? 'https' : 'http') + '://' + (options.host || 'localhost') + ':' + options.port
-        options.contentBase.forEach(base => {
-          console.log(green(url) + ' -> ' + resolve(base))
-        })
+        if (options.verbose) {
+          options.contentBase.forEach(base => {
+            console.log(green(url) + ' -> ' + resolve(base))
+          })
+        }
 
         // Open browser
         if (options.open) {
