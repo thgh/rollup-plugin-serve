@@ -79,6 +79,19 @@ function serve (options = { contentBase: '' }) {
     server = createServer(requestListener).listen(options.port, options.host)
   }
 
+  // Assemble url for error and info messages
+  const url = (options.https ? 'https' : 'http') + '://' + (options.host || 'localhost') + ':' + options.port
+
+  // Handle common server errors
+  server.on('error', e => {
+    if (e.code === 'EADDRINUSE') {
+      console.error(url + ' is in use, either stop the other server or use a different port.')
+      process.exit()
+    } else {
+      throw e
+    }
+  })
+
   let first = true
 
   return {
@@ -88,7 +101,6 @@ function serve (options = { contentBase: '' }) {
         first = false
 
         // Log which url to visit
-        const url = (options.https ? 'https' : 'http') + '://' + (options.host || 'localhost') + ':' + options.port
         if (options.verbose !== false) {
           options.contentBase.forEach(base => {
             console.log(green(url) + ' -> ' + resolve(base))
