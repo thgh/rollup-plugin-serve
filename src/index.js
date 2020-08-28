@@ -1,7 +1,7 @@
 import { readFile } from 'fs'
 import { createServer as createHttpsServer } from 'https'
 import { createServer } from 'http'
-import { resolve } from 'path'
+import { resolve, posix } from 'path'
 
 import mime from 'mime'
 import opener from 'opener'
@@ -23,9 +23,16 @@ function serve (options = { contentBase: '' }) {
   options.openPage = options.openPage || ''
   mime.default_type = 'text/plain'
 
+  if (options.mimeTypes) {
+    mime.define(options.mimeTypes, true)
+  }
+
   const requestListener = (request, response) => {
     // Remove querystring
-    const urlPath = decodeURI(request.url.split('?')[0])
+    const unsafePath = decodeURI(request.url.split('?')[0])
+
+    // Don't allow path traversal
+    const urlPath = posix.normalize(unsafePath)
 
     Object.keys(options.headers).forEach((key) => {
       response.setHeader(key, options.headers[key])
@@ -72,11 +79,10 @@ function serve (options = { contentBase: '' }) {
     server = createServer(requestListener).listen(options.port, options.host)
   }
 
-  // assemble url for error and info messages
-  const protocol = (options.https ? 'https' : 'http')
-  const hostname = options.host || 'localhost'
-  const url = protocol + '://' + hostname + ':' + options.port
+  // Assemble url for error and info messages
+  const url = (options.https ? 'https' : 'http') + '://' + (options.host || 'localhost') + ':' + options.port
 
+  // Handle common server errors
   server.on('error', e => {
     if (e.code === 'EADDRINUSE') {
       console.error(url + ' is in use, either stop the other server or use a different port.')
@@ -86,18 +92,20 @@ function serve (options = { contentBase: '' }) {
     }
   })
 
-  let running = options.verbose === false
+  let first = true
 
   return {
     name: 'serve',
     generateBundle () {
-      if (!running) {
-        running = true
+      if (first) {
+        first = false
 
         // Log which url to visit
-        options.contentBase.forEach(base => {
-          console.log(green(url) + ' -> ' + resolve(base))
-        })
+        if (options.verbose !== false) {
+          options.contentBase.forEach(base => {
+            console.log(green(url) + ' -> ' + resolve(base))
+          })
+        }
 
         // Open browser
         if (options.open) {
@@ -147,7 +155,7 @@ function green (text) {
   return '\u001b[1m\u001b[32m' + text + '\u001b[39m\u001b[22m'
 }
 
-function closeServerOnTermination() {
+function closeServerOnTermination () {
   const terminationSignals = ['SIGINT', 'SIGTERM', 'SIGQUIT', 'SIGHUP']
   terminationSignals.forEach(signal => {
     process.on(signal, () => {
