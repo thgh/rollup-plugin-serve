@@ -96,10 +96,12 @@ serve({
   }
 
   // execute function after server has begun listening
-  onListening: (server) => {
+  onListening: function (server) {
     const address = server.getAddress()
     const host = address.host === '::' ? 'localhost' : address.host
-    console.log(`Server listening at http://${host}:${address.port}/`)
+    // by using a bound function, we can access options as `this`
+    const protocol = this.https ? 'https' : 'http'
+    console.log(`Server listening at ${protocol}://${host}:${address.port}/`)
   }
 })
 ```
