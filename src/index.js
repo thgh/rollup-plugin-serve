@@ -21,7 +21,7 @@ function serve (options = { contentBase: '' }) {
   options.headers = options.headers || {}
   options.https = options.https || false
   options.openPage = options.openPage || ''
-  options.onListening = options.onListening || function noop() { }
+  options.onListening = options.onListening || function noop () { }
   mime.default_type = 'text/plain'
 
   if (options.mimeTypes) {
