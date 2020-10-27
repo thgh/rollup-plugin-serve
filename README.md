@@ -94,6 +94,13 @@ serve({
   mimeTypes: {
     'application/javascript': ['js_commonjs-proxy']
   }
+
+  // execute function after server has begun listening
+  onListening: (server) => {
+    const address = server.getAddress()
+    const host = address.host === '::' ? 'localhost' : address.host
+    console.log(`Server listening at http://${host}:${address.port}/`)
+  }
 })
 ```
 
