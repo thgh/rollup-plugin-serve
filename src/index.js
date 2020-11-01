@@ -21,6 +21,7 @@ function serve (options = { contentBase: '' }) {
   options.headers = options.headers || {}
   options.https = options.https || false
   options.openPage = options.openPage || ''
+  options.onListening = options.onListening || function noop () { }
   mime.default_type = 'text/plain'
 
   if (options.mimeTypes) {
@@ -74,9 +75,15 @@ function serve (options = { contentBase: '' }) {
 
   // If HTTPS options are available, create an HTTPS server
   if (options.https) {
-    server = createHttpsServer(options.https, requestListener).listen(options.port, options.host)
+    server = createHttpsServer(options.https, requestListener)
+    server.listen(options.port, options.host, () => {
+      options.onListening(server)
+    })
   } else {
-    server = createServer(requestListener).listen(options.port, options.host)
+    server = createServer(requestListener)
+    server.listen(options.port, options.host, () => {
+      options.onListening(server)
+    })
   }
 
   // Assemble url for error and info messages
@@ -178,6 +185,7 @@ export default serve
  * @property {string|boolean} [historyApiFallback] Path to fallback page. Set to `true` to return index.html (200) instead of error page (404)
  * @property {string} [host='localhost'] Server host (default: `'localhost'`)
  * @property {number} [port=10001] Server port (default: `10001`)
+ * @property {function} [onListening] Execute a function when server starts listening for connections on a port
  * @property {ServeOptionsHttps} [https=false] By default server will be served over HTTP (https: `false`). It can optionally be served over HTTPS
  * @property {{[header:string]: string}} [headers] Set headers
  */
