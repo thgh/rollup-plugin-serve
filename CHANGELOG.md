@@ -2,6 +2,18 @@
 
 All notable changes to `rollup-plugin-serve` will be documented in this file.
 
+## [1.1.0] - 2020-11-01
+### Added
+- Add `onListening` hook #69 @filoxo
+- Show error message when port is in use #60 @jaeh
+
+## [1.0.4] - 2020-08-28
+### Added
+- Add `mimeTypes` option #58 @GerardRodes
+
+### Fixed
+- Allow opening the browser even when verbose mode is disabled #64 @Richienb
+
 ## [1.0.3] - 2020-07-21
 ### Fixed
 - Fix path.normalize error on Windows

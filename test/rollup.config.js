@@ -19,6 +19,9 @@ export default {
     file: 'dest.js',
     format: 'cjs'
   },
+  watch: {
+    clearScreen: false,
+  },
   plugins: [
     serve({
       open: true,

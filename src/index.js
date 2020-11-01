@@ -74,17 +74,10 @@ function serve (options = { contentBase: '' }) {
   }
 
   // If HTTPS options are available, create an HTTPS server
-  if (options.https) {
-    server = createHttpsServer(options.https, requestListener)
-    server.listen(options.port, options.host, () => {
-      options.onListening(server)
-    })
-  } else {
-    server = createServer(requestListener)
-    server.listen(options.port, options.host, () => {
-      options.onListening(server)
-    })
-  }
+  server = options.https
+    ? createHttpsServer(options.https, requestListener)
+    : createServer(requestListener)
+  server.listen(options.port, options.host, () => options.onListening(server))
 
   // Assemble url for error and info messages
   const url = (options.https ? 'https' : 'http') + '://' + (options.host || 'localhost') + ':' + options.port
