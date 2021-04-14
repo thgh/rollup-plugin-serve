@@ -1,6 +1,6 @@
 {
   "name": "rollup-plugin-serve",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Serve your rolled up bundle",
   "main": "dist/index.cjs.js",
   "module": "dist/index.es.js",
@@ -10,7 +10,7 @@
     "dev": "rollup -cw",
     "lint": "standard --fix rollup.config.js src/**",
     "prepare": "yarn lint && yarn build",
-    "test": "cd test && rollup -c || cd .."
+    "test": "cd test && rollup -cw || cd .."
   },
   "keywords": [
     "rollup",
@@ -33,12 +33,12 @@
     "dist"
   ],
   "dependencies": {
-    "mime": ">=2.0.3",
+    "mime": ">=2.4.6",
     "opener": "1"
   },
   "devDependencies": {
-    "rollup": "1",
-    "rollup-plugin-buble": "^0.15.0",
-    "standard": "12"
+    "@rollup/plugin-buble": "0.21.3",
+    "rollup": "2",
+    "standard": "14"
   }
 }

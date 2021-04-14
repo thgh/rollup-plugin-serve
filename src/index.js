@@ -1,7 +1,7 @@
 import { readFile } from 'fs'
 import https, { createServer as createHttpsServer } from 'https'
 import http, { createServer } from 'http'
-import { resolve } from 'path'
+import { resolve, posix } from 'path'
 
 import mime from 'mime'
 import opener from 'opener'
@@ -16,14 +16,18 @@ function serve (options = { contentBase: '' }) {
   if (Array.isArray(options) || typeof options === 'string') {
     options = { contentBase: options }
   }
-  options.contentBase = Array.isArray(options.contentBase) ? options.contentBase : [options.contentBase]
-  options.host = options.host || 'localhost'
+  options.contentBase = Array.isArray(options.contentBase) ? options.contentBase : [options.contentBase || '']
   options.port = options.port || 10001
   options.headers = options.headers || {}
   options.https = options.https || false
+  options.onListening = options.onListening || function noop () { }
   options.openPage = options.openPage || ''
   options.proxy = options.proxy || {}
   mime.default_type = 'text/plain'
+
+  if (options.mimeTypes) {
+    mime.define(options.mimeTypes, true)
+  }
 
   // Use http or https as needed
   const http_s = options.https ? https : http
@@ -34,10 +38,12 @@ function serve (options = { contentBase: '' }) {
     test: new RegExp(`\/${proxy}`)
   }))
 
-
-  const requestListener = (request, response) => {    
+  const requestListener = (request, response) => {
     // Remove querystring
-    const urlPath = decodeURI(request.url.split('?')[0])
+    const unsafePath = decodeURI(request.url.split('?')[0])
+
+    // Don't allow path traversal
+    const urlPath = posix.normalize(unsafePath)
 
     Object.keys(options.headers).forEach((key) => {
       response.setHeader(key, options.headers[key])
@@ -72,66 +78,84 @@ function serve (options = { contentBase: '' }) {
         proxyRequest.on('error', err => console.error(`There was a problem with the request for ${request.url}: ${err}`))
         proxyRequest.end()
       })
-    } else {
-      readFileFromContentBase(options.contentBase, urlPath, function (error, content, filePath) {
-        if (!error) {
-          return found(response, filePath, content)
-        }
-        if (error.code !== 'ENOENT') {
-          response.writeHead(500)
-          response.end('500 Internal Server Error' +
-            '\n\n' + filePath +
-            '\n\n' + Object.values(error).join('\n') +
-            '\n\n(rollup-plugin-serve)', 'utf-8')
-          return
-        }
-        if (options.historyApiFallback) {
-          var fallbackPath = typeof options.historyApiFallback === 'string' ? options.historyApiFallback : '/index.html'
-          readFileFromContentBase(options.contentBase, fallbackPath, function (error, content, filePath) {
-            if (error) {
-              notFound(response, filePath)
-            } else {
-              found(response, filePath, content)
-            }
-          })
-        } else {
-          notFound(response, filePath)
-        }
-      })
+      return
     }
+
+    readFileFromContentBase(options.contentBase, urlPath, function (error, content, filePath) {
+      if (!error) {
+        return found(response, filePath, content)
+      }
+      if (error.code !== 'ENOENT') {
+        response.writeHead(500)
+        response.end('500 Internal Server Error' +
+          '\n\n' + filePath +
+          '\n\n' + Object.values(error).join('\n') +
+          '\n\n(rollup-plugin-serve)', 'utf-8')
+        return
+      }
+      if (options.historyApiFallback) {
+        const fallbackPath = typeof options.historyApiFallback === 'string' ? options.historyApiFallback : '/index.html'
+        readFileFromContentBase(options.contentBase, fallbackPath, function (error, content, filePath) {
+          if (error) {
+            notFound(response, filePath)
+          } else {
+            found(response, filePath, content)
+          }
+        })
+      } else {
+        notFound(response, filePath)
+      }
+    })
   }
 
   // release previous server instance if rollup is reloading configuration in watch mode
   if (server) {
     server.close()
+  } else {
+    closeServerOnTermination()
   }
 
   // If HTTPS options are available, create an HTTPS server
-  if (options.https) {
-    server = createHttpsServer(options.https, requestListener).listen(options.port, options.host)
-  } else {
-    server = createServer(requestListener).listen(options.port, options.host)
-  }
+  server = options.https
+    ? createHttpsServer(options.https, requestListener)
+    : createServer(requestListener)
+  server.listen(options.port, options.host, () => options.onListening(server))
 
-  closeServerOnTermination(server)
+  // Assemble url for error and info messages
+  const url = (options.https ? 'https' : 'http') + '://' + (options.host || 'localhost') + ':' + options.port
 
-  var running = options.verbose === false
+  // Handle common server errors
+  server.on('error', e => {
+    if (e.code === 'EADDRINUSE') {
+      console.error(url + ' is in use, either stop the other server or use a different port.')
+      process.exit()
+    } else {
+      throw e
+    }
+  })
+
+  let first = true
 
   return {
     name: 'serve',
     generateBundle () {
-      if (!running) {
-        running = true
+      if (first) {
+        first = false
 
         // Log which url to visit
-        const url = (options.https ? 'https' : 'http') + '://' + options.host + ':' + options.port
-        options.contentBase.forEach(base => {
-          console.log(green(url) + ' -> ' + resolve(base))
-        })
+        if (options.verbose !== false) {
+          options.contentBase.forEach(base => {
+            console.log(green(url) + ' -> ' + resolve(base))
+          })
+        }
 
         // Open browser
         if (options.open) {
-          opener(url + options.openPage)
+          if (/https?:\/\/.+/.test(options.openPage)) {
+            opener(options.openPage)
+          } else {
+            opener(url + options.openPage)
+          }
         }
       }
     }
@@ -178,12 +202,14 @@ function green (text) {
   return '\u001b[1m\u001b[32m' + text + '\u001b[39m\u001b[22m'
 }
 
-function closeServerOnTermination (server) {
-  const terminationSignals = ['SIGINT', 'SIGTERM']
-  terminationSignals.forEach((signal) => {
+function closeServerOnTermination () {
+  const terminationSignals = ['SIGINT', 'SIGTERM', 'SIGQUIT', 'SIGHUP']
+  terminationSignals.forEach(signal => {
     process.on(signal, () => {
-      server.close()
-      process.exit()
+      if (server) {
+        server.close()
+        process.exit()
+      }
     })
   })
 }
@@ -199,6 +225,7 @@ export default serve
  * @property {string|boolean} [historyApiFallback] Path to fallback page. Set to `true` to return index.html (200) instead of error page (404)
  * @property {string} [host='localhost'] Server host (default: `'localhost'`)
  * @property {number} [port=10001] Server port (default: `10001`)
+ * @property {function} [onListening] Execute a function when server starts listening for connections on a port
  * @property {ServeOptionsHttps} [https=false] By default server will be served over HTTP (https: `false`). It can optionally be served over HTTPS
  * @property {{[header:string]: string}} [headers] Set headers
  */

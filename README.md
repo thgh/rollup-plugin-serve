@@ -90,6 +90,20 @@ serve({
     foo: 'bar'
   },
 
+  // set custom mime types, usage https://github.com/broofa/mime#mimedefinetypemap-force--false
+  mimeTypes: {
+    'application/javascript': ['js_commonjs-proxy']
+  },
+
+  // execute function after server has begun listening
+  onListening: function (server) {
+    const address = server.address()
+    const host = address.address === '::' ? 'localhost' : address.address
+    // by using a bound function, we can access options as `this`
+    const protocol = this.https ? 'https' : 'http'
+    console.log(`Server listening at ${protocol}://${host}:${address.port}/`)
+  },
+
   // Set up simple proxy
   // this will route all traffic starting with
   // `/api` to http://localhost:8181/api
