@@ -90,10 +90,20 @@ serve({
     foo: 'bar'
   },
 
+  customRoute: {
+    url: '/reset',
+    method: 'POST',
+    handler: function (request, response) {
+      res.writeHead(200, { 'Content-Type': 'text/plain' })
+      res.write('<html>OK</html>')
+      res.end()
+    }
+  },
+
   // set custom mime types, usage https://github.com/broofa/mime#mimedefinetypemap-force--false
   mimeTypes: {
     'application/javascript': ['js_commonjs-proxy']
-  }
+  },
 
   // execute function after server has begun listening
   onListening: function (server) {
