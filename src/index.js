@@ -35,6 +35,14 @@ function serve (options = { contentBase: '' }) {
     // Don't allow path traversal
     const urlPath = posix.normalize(unsafePath)
 
+    // Call custom handler if defined
+    if (options.customRoute) {
+      const { method, url, handler } = options.customRoute
+      if (urlPath === url && request.method === method) {
+        return handler(request, response)
+      }
+    }
+
     Object.keys(options.headers).forEach((key) => {
       response.setHeader(key, options.headers[key])
     })
@@ -181,6 +189,10 @@ export default serve
  * @property {function} [onListening] Execute a function when server starts listening for connections on a port
  * @property {ServeOptionsHttps} [https=false] By default server will be served over HTTP (https: `false`). It can optionally be served over HTTPS
  * @property {{[header:string]: string}} [headers] Set headers
+ * @property {Object} [customRoute] Setup a custom handler for a single path / HTTP verb
+ * @property {string} [customRoute.method] HTTP verb to intercept
+ * @property {string} [customRoute.url] URI path (relative)
+ * @property {string} [customRoute.handler] A function to receive (req, res) as args and handle the request
  */
 
 /**
