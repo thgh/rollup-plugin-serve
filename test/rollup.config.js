@@ -25,6 +25,7 @@ export default {
   plugins: [
     serve({
       open: true,
+      port:'3001',
       openPage: '/frames.html',
       historyApiFallback: '/fallback.html',
       contentBase: ['.', 'base1', 'base2'],

@@ -34,7 +34,9 @@
   ],
   "dependencies": {
     "mime": ">=2.4.6",
-    "opener": "1"
+    "opener": "1",
+    "p-retry": "^4.6.1",
+    "portfinder": "^1.0.28"
   },
   "devDependencies": {
     "@rollup/plugin-buble": "0.21.3",
