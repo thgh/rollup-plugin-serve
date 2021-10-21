@@ -15,3 +15,4 @@ dist/*
 !dist/favicon.ico
 test/dest.js
 package-lock.json
+yarn.lock
