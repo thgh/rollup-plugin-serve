@@ -18,6 +18,7 @@ function serve (options = { contentBase: '' }) {
   }
   options.contentBase = Array.isArray(options.contentBase) ? options.contentBase : [options.contentBase || '']
   options.port = options.port || 10001
+  options.autoPort = typeof (options.autoPort) === 'undefined' ? true : options.autoPort
   options.headers = options.headers || {}
   options.https = options.https || false
   options.openPage = options.openPage || ''
@@ -77,7 +78,12 @@ function serve (options = { contentBase: '' }) {
   server = options.https
     ? createHttpsServer(options.https, requestListener)
     : createServer(requestListener)
-  server.listen(options.port, options.host, () => options.onListening(server))
+
+  let port = options.port
+  const startByPort = () => {
+    server.listen(port, options.host, () => options.onListening(server))
+  }
+  startByPort()
 
   // Assemble url for error and info messages
   const url = (options.https ? 'https' : 'http') + '://' + (options.host || 'localhost') + ':' + options.port
@@ -85,8 +91,14 @@ function serve (options = { contentBase: '' }) {
   // Handle common server errors
   server.on('error', e => {
     if (e.code === 'EADDRINUSE') {
-      console.error(url + ' is in use, either stop the other server or use a different port.')
-      process.exit()
+      if (options.autoPort) {
+        console.error(url + ' is in use, change to another port.')
+        port++
+        startByPort()
+      } else {
+        console.error(url + ' is in use, either stop the other server or use a different port.')
+        process.exit()
+      }
     } else {
       throw e
     }
@@ -178,6 +190,7 @@ export default serve
  * @property {string|boolean} [historyApiFallback] Path to fallback page. Set to `true` to return index.html (200) instead of error page (404)
  * @property {string} [host='localhost'] Server host (default: `'localhost'`)
  * @property {number} [port=10001] Server port (default: `10001`)
+ * @property {boolean} [autoPort=true] Server port (default: `10001`)
  * @property {function} [onListening] Execute a function when server starts listening for connections on a port
  * @property {ServeOptionsHttps} [https=false] By default server will be served over HTTP (https: `false`). It can optionally be served over HTTPS
  * @property {{[header:string]: string}} [headers] Set headers
