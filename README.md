@@ -89,6 +89,10 @@ serve({
   host: 'localhost',
   port: 10001,
 
+  // Set to true to keep incrementing the value of port and trying to bind to it,
+  // until a free port is found.
+  autoPort: false,
+
   // By default server will be served over HTTP (https: false). It can optionally be served over HTTPS
   https: {
     key: fs.readFileSync('/path/to/server.key'),

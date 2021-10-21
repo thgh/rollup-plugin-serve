@@ -219,16 +219,28 @@ function serve(options = { contentBase: '' }) {
   // If HTTPS options are available, create an HTTPS server
   server = options.https ? createHttpsServer(options.https, app) : createServer(app)
   killable(server)
-  server.listen(options.port, options.host, () => options.onListening(server))
+  let port = options.port
+  const startByPort = () => {
+    server.listen(port, options.host, () => options.onListening(server))
+  }
+  startByPort()
 
   // Assemble url for error and info messages
-  const url = (options.https ? 'https' : 'http') + '://' + (options.host || 'localhost') + ':' + options.port
+  const getUrl = () => {
+    return `${options.https ? 'https' : 'http'}://${options.host || 'localhost'}:${port}`
+  }
 
   // Handle common server errors
   server.on('error', (e) => {
     if (e.code === 'EADDRINUSE') {
-      console.error(url + ' is in use, either stop the other server or use a different port.')
-      process.exit()
+      if (options.autoPort) {
+        console.error(`${getUrl()} is in use, change to another port.`)
+        ++port
+        startByPort()
+      } else {
+        console.error(`${getUrl()} is in use, either stop the other server or use a different port.`)
+        process.exit()
+      }
     } else {
       throw e
     }
@@ -244,8 +256,8 @@ function serve(options = { contentBase: '' }) {
 
         // Log which url to visit
         if (options.verbose !== false) {
-          options.contentBase.forEach((base) => {
-            console.log(green(url) + ' -> ' + resolve(base))
+          options.contentBase.forEach(base => {
+            console.log(`${green(getUrl())} -> ${resolve(base)}`)
           })
         }
 
@@ -254,7 +266,7 @@ function serve(options = { contentBase: '' }) {
           if (/https?:\/\/.+/.test(options.openPage)) {
             opener(options.openPage)
           } else {
-            opener(url + options.openPage)
+            opener(`${getUrl()}${options.openPage}`)
           }
         }
       }

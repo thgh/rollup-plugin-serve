@@ -67,6 +67,12 @@ export interface RollupServeOptions {
   port?: number | string
 
   /**
+   * Automatically choose an available port if the specified port is already in use.
+   * If set to `true`, the meaning of `port` changes to the initial port to try. (default: `false`)
+   */
+  autoPort?: boolean
+
+  /**
    * By default server will be served over HTTP (https: `false`). It can optionally be served over HTTPS.
    */
   https?: ServerOptions
