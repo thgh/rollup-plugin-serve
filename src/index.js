@@ -86,17 +86,19 @@ function serve (options = { contentBase: '' }) {
   startByPort()
 
   // Assemble url for error and info messages
-  const url = (options.https ? 'https' : 'http') + '://' + (options.host || 'localhost') + ':' + options.port
+  const getUrl = () => {
+    return (options.https ? 'https' : 'http') + '://' + (options.host || 'localhost') + ':' + port
+  }
 
   // Handle common server errors
   server.on('error', e => {
     if (e.code === 'EADDRINUSE') {
       if (options.autoPort) {
-        console.error(url + ' is in use, change to another port.')
+        console.error(getUrl() + ' is in use, change to another port.')
         port++
         startByPort()
       } else {
-        console.error(url + ' is in use, either stop the other server or use a different port.')
+        console.error(getUrl() + ' is in use, either stop the other server or use a different port.')
         process.exit()
       }
     } else {
@@ -114,8 +116,10 @@ function serve (options = { contentBase: '' }) {
 
         // Log which url to visit
         if (options.verbose !== false) {
+          console.log('')
+          console.log('App running at:')
           options.contentBase.forEach(base => {
-            console.log(green(url) + ' -> ' + resolve(base))
+            console.log('- ' + green(getUrl()) + ' -> ' + resolve(base))
           })
         }
 
@@ -124,7 +128,7 @@ function serve (options = { contentBase: '' }) {
           if (/https?:\/\/.+/.test(options.openPage)) {
             opener(options.openPage)
           } else {
-            opener(url + options.openPage)
+            opener(getUrl() + options.openPage)
           }
         }
       }
