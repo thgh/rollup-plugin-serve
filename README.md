@@ -77,6 +77,9 @@ serve({
   host: 'localhost',
   port: 10001,
 
+  // Avaliable auto change port when conflict.
+  autoPort: true,
+
   // By default server will be served over HTTP (https: false). It can optionally be served over HTTPS
   https: {
     key: fs.readFileSync('/path/to/server.key'),
