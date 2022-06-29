@@ -17,15 +17,15 @@
 </a>
 
 ## Installation
+
 ```
-# Rollup v0.60+ and v1+
 npm install --save-dev rollup-plugin-serve
 
-# Rollup v0.59 and below
-npm install --save-dev rollup-plugin-serve@0
+yarn add rollup-plugin-serve
 ```
 
 ## Usage
+
 ```js
 // rollup.config.js
 import serve from 'rollup-plugin-serve'
@@ -45,6 +45,7 @@ export default {
 ### Options
 
 By default it serves the current project folder. Change it by passing a string:
+
 ```js
 serve('public')    // will be used as contentBase
 
@@ -117,9 +118,10 @@ Contributions and feedback are very welcome.
 This project aims to stay lean and close to standards. New features should encourage to stick to standards. Options that match the behaviour of [webpack-dev-server](https://webpack.js.org/configuration/dev-server/#devserver) are always ok.
 
 To get it running:
-  1. Clone the project.
-  2. `npm install`
-  3. `npm run build`
+
+1. Clone the project.
+2. `npm install`
+3. `npm run build`
 
 ## Credits
 
