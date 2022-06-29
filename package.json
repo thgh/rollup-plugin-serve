@@ -40,6 +40,6 @@
   "devDependencies": {
     "@rollup/plugin-buble": "0.21.3",
     "rollup": "2",
-    "standard": "14"
+    "standard": "17"
   }
 }
