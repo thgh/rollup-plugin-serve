@@ -6,6 +6,10 @@
   "module": "dist/index.es.js",
   "jsnext:main": "dist/index.es.js",
   "types": "index.d.ts",
+  "exports": {
+    "import": "./dist/index.mjs",
+    "default": "./dist/index.cjs"
+  },
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -cw",
