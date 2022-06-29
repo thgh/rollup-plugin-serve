@@ -5,6 +5,7 @@
   "main": "dist/index.cjs.js",
   "module": "dist/index.es.js",
   "jsnext:main": "dist/index.es.js",
+  "types": "index.d.ts",
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -cw",
