@@ -35,7 +35,8 @@
     "url": "https://github.com/thgh/rollup-plugin-serve"
   },
   "files": [
-    "dist"
+    "dist",
+    "index.d.ts"
   ],
   "dependencies": {
     "mime": ">=2.4.6",
