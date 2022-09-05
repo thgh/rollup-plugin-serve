@@ -44,6 +44,7 @@
   },
   "devDependencies": {
     "@rollup/plugin-buble": "0.21.3",
+    "@types/node": "^18.7.15",
     "rollup": "2",
     "standard": "17"
   }
