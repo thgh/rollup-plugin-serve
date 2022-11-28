@@ -5,50 +5,50 @@ import { TypeMap } from 'mime'
 
 export interface RollupServeOptions {
   /**
-   * Launch in browser (default: false)
+   * Launch the browser after the first bundle is generated (default: `false`)
    */
   open?: boolean
 
   /**
-   * Page to navigate to when opening the browser.
-   * Will not do anything if open=false.
-   * Remember to start with a slash.
+   * Change the page that is opened when the browser is launched.
+   * Will not do anything if `open = false`.
+   * Remember to start with a slash, e.g. `'/different/page'`
    */
   openPage?: string
 
   /**
-   * Show server address in console (default: true)
+   * Show server address in console (default: `true`)
    */
   verbose?: boolean
 
   /**
-   * Folder or multiple folders to serve files from
+   * Serve static files from the specified folder(s).
    */
   contentBase?: string | string[]
 
   /**
-   * Set to true to return index.html (200) instead of error page (404)
+   * Set to `true` to return index.html (200) instead of error page (404)
    * or path to fallback page
    */
   historyApiFallback?: boolean | string
 
   /**
-   * Host option used in setting up server (default: 'localhost')
+   * Change the host of the server (default: `'localhost'`)
    */
   host?: string
 
   /**
-   * Post option used in setting up server (default: '10001')
+   * Change the port that the server will listen on (default: `10001`)
    */
   port?: number | string
 
   /**
-   * By default server will be served over HTTP (https: false). It can optionally be served over HTTPS
+   * By default server will be served over HTTP (https: `false`). It can optionally be served over HTTPS.
    */
   https?: ServerOptions
 
   /**
-   * Set headers
+   * Set custom response headers
    */
   headers?:
     | IncomingHttpHeaders
@@ -70,6 +70,6 @@ export interface RollupServeOptions {
 }
 
 /**
- * A Rollup plugin for including serve in your web app.
+ * Serve your rolled up bundle like webpack-dev-server
  */
 export default function serve(options?: RollupServeOptions | string): Plugin
