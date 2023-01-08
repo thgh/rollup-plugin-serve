@@ -6,6 +6,9 @@ import { resolve, posix } from 'path'
 import mime from 'mime'
 import opener from 'opener'
 
+import pRetry from 'p-retry'
+import portfinder from 'portfinder'
+
 let server
 
 /**
@@ -24,82 +27,95 @@ function serve (options = { contentBase: '' }) {
   options.onListening = options.onListening || function noop () { }
   mime.default_type = 'text/plain'
 
-  if (options.mimeTypes) {
-    mime.define(options.mimeTypes, true)
-  }
+  async function start(){
+    let url
+    if (options.mimeTypes) {
+      mime.define(options.mimeTypes, true)
+    }
 
-  const requestListener = (request, response) => {
-    // Remove querystring
-    const unsafePath = decodeURI(request.url.split('?')[0])
+    portfinder.basePort = options.port
 
-    // Don't allow path traversal
-    const urlPath = posix.normalize(unsafePath)
+    await pRetry(() => portfinder.getPortPromise(), {
+      retries: 3,
+    }).then((num) => {
+      options.port = num;
 
-    Object.keys(options.headers).forEach((key) => {
-      response.setHeader(key, options.headers[key])
-    })
+      const requestListener = (request, response) => {
+        // Remove querystring
+        const unsafePath = decodeURI(request.url.split('?')[0])
 
-    readFileFromContentBase(options.contentBase, urlPath, function (error, content, filePath) {
-      if (!error) {
-        return found(response, filePath, content)
-      }
-      if (error.code !== 'ENOENT') {
-        response.writeHead(500)
-        response.end('500 Internal Server Error' +
-          '\n\n' + filePath +
-          '\n\n' + Object.values(error).join('\n') +
-          '\n\n(rollup-plugin-serve)', 'utf-8')
-        return
-      }
-      if (options.historyApiFallback) {
-        const fallbackPath = typeof options.historyApiFallback === 'string' ? options.historyApiFallback : '/index.html'
-        readFileFromContentBase(options.contentBase, fallbackPath, function (error, content, filePath) {
-          if (error) {
-            notFound(response, filePath)
+        // Don't allow path traversal
+        const urlPath = posix.normalize(unsafePath)
+
+        Object.keys(options.headers).forEach((key) => {
+          response.setHeader(key, options.headers[key])
+        })
+
+        readFileFromContentBase(options.contentBase, urlPath, function (error, content, filePath) {
+          if (!error) {
+            return found(response, filePath, content)
+          }
+          if (error.code !== 'ENOENT') {
+            response.writeHead(500)
+            response.end('500 Internal Server Error' +
+                '\n\n' + filePath +
+                '\n\n' + Object.values(error).join('\n') +
+                '\n\n(rollup-plugin-serve)', 'utf-8')
+            return
+          }
+          if (options.historyApiFallback) {
+            const fallbackPath = typeof options.historyApiFallback === 'string' ? options.historyApiFallback : '/index.html'
+            readFileFromContentBase(options.contentBase, fallbackPath, function (error, content, filePath) {
+              if (error) {
+                notFound(response, filePath)
+              } else {
+                found(response, filePath, content)
+              }
+            })
           } else {
-            found(response, filePath, content)
+            notFound(response, filePath)
           }
         })
-      } else {
-        notFound(response, filePath)
       }
+
+      // release previous server instance if rollup is reloading configuration in watch mode
+      if (server) {
+        server.close()
+      } else {
+        closeServerOnTermination()
+      }
+
+      // If HTTPS options are available, create an HTTPS server
+      server = options.https
+          ? createHttpsServer(options.https, requestListener)
+          : createServer(requestListener)
+      server.listen(options.port, options.host, () => options.onListening(server))
+
+      // Assemble url for error and info messages
+      url = (options.https ? 'https' : 'http') + '://' + (options.host || 'localhost') + ':' + options.port
+
+      // Handle common server errors
+      server.on('error', e => {
+        if (e.code === 'EADDRINUSE') {
+          console.error(url + ' is in use, either stop the other server or use a different port.')
+          process.exit()
+        } else {
+          throw e
+        }
+      })
     })
+
+    return url
   }
-
-  // release previous server instance if rollup is reloading configuration in watch mode
-  if (server) {
-    server.close()
-  } else {
-    closeServerOnTermination()
-  }
-
-  // If HTTPS options are available, create an HTTPS server
-  server = options.https
-    ? createHttpsServer(options.https, requestListener)
-    : createServer(requestListener)
-  server.listen(options.port, options.host, () => options.onListening(server))
-
-  // Assemble url for error and info messages
-  const url = (options.https ? 'https' : 'http') + '://' + (options.host || 'localhost') + ':' + options.port
-
-  // Handle common server errors
-  server.on('error', e => {
-    if (e.code === 'EADDRINUSE') {
-      console.error(url + ' is in use, either stop the other server or use a different port.')
-      process.exit()
-    } else {
-      throw e
-    }
-  })
 
   let first = true
 
   return {
     name: 'serve',
-    generateBundle () {
+    async generateBundle () {
       if (first) {
         first = false
-
+        const url = await start()
         // Log which url to visit
         if (options.verbose !== false) {
           options.contentBase.forEach(base => {
