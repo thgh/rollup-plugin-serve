@@ -27,6 +27,12 @@ export interface RollupServeOptions {
   contentBase?: string | string[]
 
   /**
+   * URL path prefix applied to all requests.
+   * E.g. If `contentBasePublicPath="/foo/bar"` and a request is made to `/foo/bar/baz.js`, `baz.js` will be returned from `contentBase`.
+   */
+  contentBasePublicPath?: string
+
+  /**
    * Set to `true` to return index.html (200) instead of error page (404)
    * or path to fallback page
    */

@@ -27,14 +27,30 @@
     <td><iframe src="error.html"></iframe></td>
   </tr>
   <tr>
+    <td>/foo/bar</td>
+    <td><iframe src="/foo/bar"></iframe></td>
+    <td><iframe src="/foo/bar/"></iframe></td>
+    <td><iframe src="/foo/bar/error.html"></iframe></td>
+  </tr>
+  <tr>
     <td>./base1</td>
     <td><iframe src="./base1"></iframe></td>
     <td><iframe src="./base1/"></iframe></td>
   </tr>
   <tr>
+    <td>/foo/bar/base1</td>
+    <td><iframe src="/foo/bar/base1"></iframe></td>
+    <td><iframe src="/foo/bar/base1/"></iframe></td>
+  </tr>
+  <tr>
     <td>./base2</td>
     <td><iframe src="./base2"></iframe></td>
     <td><iframe src="./base2/"></iframe></td>
+  </tr>
+  <tr>
+    <td>/foo/bar/base2</td>
+    <td><iframe src="/foo/bar/base2"></iframe></td>
+    <td><iframe src="/foo/bar/base2/"></iframe></td>
   </tr>
   <tr>
     <th></th>
@@ -49,9 +65,21 @@
     <td><iframe src="./base2/test1.html"></iframe></td>
   </tr>
   <tr>
+    <td>/foo/bar/test1.html</td>
+    <td><iframe src="/foo/bar/test1.html"></iframe></td>
+    <td><iframe src="/foo/bar//base1/test1.html"></iframe></td>
+    <td><iframe src="/foo/bar//base2/test1.html"></iframe></td>
+  </tr>
+  <tr>
     <td>test2.html</td>
     <td><iframe src="./test2.html"></iframe></td>
     <td><iframe src="./base1/test2.html"></iframe></td>
     <td><iframe src="./base2/test2.html"></iframe></td>
+  </tr>
+  <tr>
+    <td>/foo/bar/test2.html</td>
+    <td><iframe src="/foo/bar//test2.html"></iframe></td>
+    <td><iframe src="/foo/bar//base1/test2.html"></iframe></td>
+    <td><iframe src="/foo/bar//base2/test2.html"></iframe></td>
   </tr>
 </table>

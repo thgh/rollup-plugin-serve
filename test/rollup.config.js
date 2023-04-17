@@ -28,6 +28,7 @@ export default {
       openPage: '/frames.html',
       historyApiFallback: '/fallback.html',
       contentBase: ['.', 'base1', 'base2'],
+      contentBasePublicPath: '/foo/bar',
       onListening: testOnListening(),
     })
   ]
