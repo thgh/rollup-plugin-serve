@@ -17,6 +17,7 @@ function serve (options = { contentBase: '' }) {
     options = { contentBase: options }
   }
   options.contentBase = Array.isArray(options.contentBase) ? options.contentBase : [options.contentBase || '']
+  options.contentBasePublicPath = options.contentBasePublicPath || ''
   options.port = options.port || 10001
   options.headers = options.headers || {}
   options.https = options.https || false
@@ -39,7 +40,7 @@ function serve (options = { contentBase: '' }) {
       response.setHeader(key, options.headers[key])
     })
 
-    readFileFromContentBase(options.contentBase, urlPath, function (error, content, filePath) {
+    readFileFromContentBase(options.contentBase, options.contentBasePublicPath, urlPath, function (error, content, filePath) {
       if (!error) {
         return found(response, filePath, content)
       }
@@ -53,7 +54,7 @@ function serve (options = { contentBase: '' }) {
       }
       if (options.historyApiFallback) {
         const fallbackPath = typeof options.historyApiFallback === 'string' ? options.historyApiFallback : '/index.html'
-        readFileFromContentBase(options.contentBase, fallbackPath, function (error, content, filePath) {
+        readFileFromContentBase(options.contentBase, options.contentBasePublicPath, fallbackPath, function (error, content, filePath) {
           if (error) {
             notFound(response, filePath)
           } else {
@@ -120,18 +121,27 @@ function serve (options = { contentBase: '' }) {
   }
 }
 
-function readFileFromContentBase (contentBase, urlPath, callback) {
-  let filePath = resolve(contentBase[0] || '.', '.' + urlPath)
+function readFileFromContentBase (contentBase, contentBasePublicPath, urlPath, callback) {
+  let internalUrlPath = urlPath
+  if (contentBasePublicPath) {
+    if (urlPath === contentBasePublicPath) {
+      internalUrlPath = '/'
+    } else if (urlPath.startsWith(contentBasePublicPath)) {
+      internalUrlPath = internalUrlPath.replace(contentBasePublicPath, '')
+    }
+  }
+
+  let filePath = resolve(contentBase[0] || '.', '.' + internalUrlPath)
 
   // Load index.html in directories
-  if (urlPath.endsWith('/')) {
+  if (internalUrlPath.endsWith('/')) {
     filePath = resolve(filePath, 'index.html')
   }
 
   readFile(filePath, (error, content) => {
     if (error && contentBase.length > 1) {
       // Try to read from next contentBase
-      readFileFromContentBase(contentBase.slice(1), urlPath, callback)
+      readFileFromContentBase(contentBase.slice(1), contentBasePublicPath, urlPath, callback)
     } else {
       // We know enough
       callback(error, content, filePath)
