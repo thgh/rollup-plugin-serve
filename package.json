@@ -9,12 +9,21 @@
     "import": "./dist/index.mjs",
     "default": "./dist/index.cjs"
   },
+  "prettier":{
+    "printWidth": 120,
+    "semi": false,
+    "singleQuote": true,
+    "endOfLine": "auto",
+    "arrowParens": "avoid",
+    "trailingComma": "es5"
+  },
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -cw",
-    "lint": "standard --fix rollup.config.js src/**",
+    "lint-check": "prettier --check *.mjs src/** test/**",
+    "lint": "prettier --write *.mjs src/** test/**",
     "prepare": "yarn lint && yarn build",
-    "test": "cd test && rollup -cw || cd .."
+    "test": "rollup -c && rollup -c test.rollup.config.mjs -w"
   },
   "keywords": [
     "rollup",
@@ -38,13 +47,12 @@
     "index.d.ts"
   ],
   "dependencies": {
-    "mime": ">=2.4.6",
-    "opener": "1"
+    "mime": "^3.0.0",
+    "opener": "^1.5.2"
   },
   "devDependencies": {
-    "@rollup/plugin-buble": "0.21.3",
-    "@types/node": "^18.7.15",
-    "rollup": "2",
-    "standard": "17"
+    "@rollup/plugin-buble": "^1.0.2",
+    "rollup": "^3.26.3",
+    "prettier": "*"
   }
 }

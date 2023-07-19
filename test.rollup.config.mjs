@@ -1,4 +1,4 @@
-import serve from '../src/index.js'
+import serve from './dist/index.cjs.js'
 
 const testOnListening = () => {
   const timeout = 3
@@ -7,17 +7,17 @@ const testOnListening = () => {
     console.error(msg)
     throw new Error(msg)
   }, timeout * 1000)
-  return (server) => {
+  return server => {
     clearTimeout(timer)
     console.log('onListening works', server.address())
   }
 }
 
 export default {
-  input: 'entry.js',
+  input: 'test/entry.js',
   output: {
-    file: 'dest.js',
-    format: 'cjs'
+    file: 'test/dest.js',
+    format: 'cjs',
   },
   watch: {
     clearScreen: false,
@@ -27,8 +27,8 @@ export default {
       open: true,
       openPage: '/frames.html',
       historyApiFallback: '/fallback.html',
-      contentBase: ['.', 'base1', 'base2'],
+      contentBase: ['test', 'test/base1', 'test/base2'],
       onListening: testOnListening(),
-    })
-  ]
+    }),
+  ],
 }
