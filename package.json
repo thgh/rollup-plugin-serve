@@ -9,14 +9,6 @@
     "import": "./dist/index.mjs",
     "default": "./dist/index.cjs"
   },
-  "prettier":{
-    "printWidth": 120,
-    "semi": false,
-    "singleQuote": true,
-    "endOfLine": "auto",
-    "arrowParens": "avoid",
-    "trailingComma": "es5"
-  },
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -cw",
