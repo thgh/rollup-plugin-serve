@@ -12,7 +12,7 @@ let server
  * Serve your rolled up bundle like webpack-dev-server
  * @param {import('..').RollupServeOptions} options
  */
-function serve(options = { contentBase: '' }) {
+function serve (options = { contentBase: '' }) {
   if (Array.isArray(options) || typeof options === 'string') {
     options = { contentBase: options }
   }
@@ -23,7 +23,7 @@ function serve(options = { contentBase: '' }) {
   options.https = options.https || false
   options.openPage = options.openPage || ''
   options.proxy = options.proxy || {}
-  options.onListening = options.onListening || function noop() {}
+  options.onListening = options.onListening || function noop () {}
   mime.default_type = 'text/plain'
 
   if (options.mimeTypes) {
@@ -33,7 +33,7 @@ function serve(options = { contentBase: '' }) {
   const proxies = Object.keys(options.proxy).map(proxy => {
     return {
       destination: options.proxy[proxy],
-      test: new RegExp('/' + proxy),
+      test: new RegExp('/' + proxy)
     }
   })
 
@@ -88,7 +88,6 @@ function serve(options = { contentBase: '' }) {
       }
       if (error.code !== 'ENOENT') {
         response.writeHead(500)
-        // prettier-ignore
         response.end('500 Internal Server Error' +
           '\n\n' + filePath +
           '\n\n' + Object.values(error).join('\n') +
@@ -118,7 +117,6 @@ function serve(options = { contentBase: '' }) {
   }
 
   // If HTTPS options are available, create an HTTPS server
-  // prettier-ignore
   server = options.https
     ? https.createServer(options.https, requestListener)
     : http.createServer(requestListener)
@@ -141,7 +139,7 @@ function serve(options = { contentBase: '' }) {
 
   return {
     name: 'serve',
-    generateBundle() {
+    generateBundle () {
       if (first) {
         first = false
 
@@ -157,11 +155,11 @@ function serve(options = { contentBase: '' }) {
           opener(url + options.openPage)
         }
       }
-    },
+    }
   }
 }
 
-function readFileFromContentBase(contentBase, urlPath, callback) {
+function readFileFromContentBase (contentBase, urlPath, callback) {
   let filePath = resolve(contentBase[0] || '.', '.' + urlPath)
 
   // Load index.html in directories
@@ -180,35 +178,34 @@ function readFileFromContentBase(contentBase, urlPath, callback) {
   })
 }
 
-function notFound(response, filePath) {
+function notFound (response, filePath) {
   response.writeHead(404)
-  // prettier-ignore
   response.end('404 Not Found' +
     '\n\n' + filePath +
     '\n\n(rollup-plugin-serve)', 'utf-8')
 }
 
-function found(response, filePath, content) {
+function found (response, filePath, content) {
   response.writeHead(200, { 'Content-Type': mime.getType(filePath) })
   response.end(content, 'utf-8')
 }
 
-function foundProxy(response, status, content) {
+function foundProxy (response, status, content) {
   response.writeHead(status)
   response.end(content, 'utf-8')
 }
 
-function setHeaders(response, headers) {
+function setHeaders (response, headers) {
   Object.keys(headers).forEach(key => {
     response.setHeader(key, headers[key])
   })
 }
 
-function green(text) {
+function green (text) {
   return '\u001b[1m\u001b[32m' + text + '\u001b[39m\u001b[22m'
 }
 
-function closeServerOnTermination() {
+function closeServerOnTermination () {
   const terminationSignals = ['SIGINT', 'SIGTERM', 'SIGQUIT', 'SIGHUP']
   terminationSignals.forEach(signal => {
     process.on(signal, () => {

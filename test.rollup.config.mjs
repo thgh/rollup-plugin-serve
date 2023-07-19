@@ -17,10 +17,10 @@ export default {
   input: 'test/entry.js',
   output: {
     file: 'test/dest.js',
-    format: 'cjs',
+    format: 'cjs'
   },
   watch: {
-    clearScreen: false,
+    clearScreen: false
   },
   plugins: [
     serve({
@@ -28,7 +28,7 @@ export default {
       openPage: '/frames.html',
       historyApiFallback: '/fallback.html',
       contentBase: ['test', 'test/base1', 'test/base2'],
-      onListening: testOnListening(),
-    }),
-  ],
+      onListening: testOnListening()
+    })
+  ]
 }
