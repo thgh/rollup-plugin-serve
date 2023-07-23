@@ -1,6 +1,6 @@
 import { readFile } from 'fs'
-import { createServer as createHttpsServer } from 'https'
-import { createServer } from 'http'
+import https from 'https'
+import http from 'http'
 import { resolve, posix } from 'path'
 
 import mime from 'mime'
@@ -17,16 +17,25 @@ function serve (options = { contentBase: '' }) {
     options = { contentBase: options }
   }
   options.contentBase = Array.isArray(options.contentBase) ? options.contentBase : [options.contentBase || '']
+  options.host = options.host || 'localhost'
   options.port = options.port || 10001
   options.headers = options.headers || {}
   options.https = options.https || false
   options.openPage = options.openPage || ''
-  options.onListening = options.onListening || function noop () { }
+  options.proxy = options.proxy || {}
+  options.onListening = options.onListening || function noop () {}
   mime.default_type = 'text/plain'
 
   if (options.mimeTypes) {
     mime.define(options.mimeTypes, true)
   }
+
+  const proxies = Object.keys(options.proxy).map(proxy => {
+    return {
+      destination: options.proxy[proxy],
+      test: new RegExp('/' + proxy)
+    }
+  })
 
   const requestListener = (request, response) => {
     // Remove querystring
@@ -35,11 +44,45 @@ function serve (options = { contentBase: '' }) {
     // Don't allow path traversal
     const urlPath = posix.normalize(unsafePath)
 
-    Object.keys(options.headers).forEach((key) => {
-      response.setHeader(key, options.headers[key])
-    })
+    setHeaders(response, options.headers)
 
-    readFileFromContentBase(options.contentBase, urlPath, function (error, content, filePath) {
+    // Find the appropriate proxy for the request if one exists
+    const proxy = proxies.find(ref => urlPath.match(ref.test))
+
+    // If a proxy exists, forward the request to the appropriate server
+    if (proxy && proxy.destination) {
+      const destination = '' + proxy.destination + request.url
+      const opts = { headers: request.headers, method: request.method }
+
+      // Get the request contents
+      let body = ''
+      request.on('data', chunk => {
+        body += chunk
+      })
+
+      // Forward the request
+      request.on('end', () => {
+        const proxyRequest = (options.https ? https : http)
+          .request(destination, opts, proxyResponse => {
+            let data = ''
+            proxyResponse.on('data', chunk => {
+              data += chunk
+            })
+            proxyResponse.on('end', () => {
+              setHeaders(response, proxyResponse.headers)
+              foundProxy(response, proxyResponse.statusCode, data)
+            })
+          })
+          .end(body, 'utf-8')
+
+        proxyRequest.on('error', err => {
+          console.error('There was a problem with the request for ' + request.url + ': ' + err)
+        })
+        proxyRequest.end()
+      })
+      return
+    }
+    readFileFromContentBase(options.contentBase, urlPath, (error, content, filePath) => {
       if (!error) {
         return found(response, filePath, content)
       }
@@ -53,7 +96,7 @@ function serve (options = { contentBase: '' }) {
       }
       if (options.historyApiFallback) {
         const fallbackPath = typeof options.historyApiFallback === 'string' ? options.historyApiFallback : '/index.html'
-        readFileFromContentBase(options.contentBase, fallbackPath, function (error, content, filePath) {
+        readFileFromContentBase(options.contentBase, fallbackPath, (error, content, filePath) => {
           if (error) {
             notFound(response, filePath)
           } else {
@@ -75,12 +118,12 @@ function serve (options = { contentBase: '' }) {
 
   // If HTTPS options are available, create an HTTPS server
   server = options.https
-    ? createHttpsServer(options.https, requestListener)
-    : createServer(requestListener)
+    ? https.createServer(options.https, requestListener)
+    : http.createServer(requestListener)
   server.listen(options.port, options.host, () => options.onListening(server))
 
   // Assemble url for error and info messages
-  const url = (options.https ? 'https' : 'http') + '://' + (options.host || 'localhost') + ':' + options.port
+  const url = (options.https ? 'https' : 'http') + '://' + options.host + ':' + options.port
 
   // Handle common server errors
   server.on('error', e => {
@@ -109,11 +152,7 @@ function serve (options = { contentBase: '' }) {
 
         // Open browser
         if (options.open) {
-          if (/https?:\/\/.+/.test(options.openPage)) {
-            opener(options.openPage)
-          } else {
-            opener(url + options.openPage)
-          }
+          opener(url + options.openPage)
         }
       }
     }
@@ -149,6 +188,17 @@ function notFound (response, filePath) {
 function found (response, filePath, content) {
   response.writeHead(200, { 'Content-Type': mime.getType(filePath) })
   response.end(content, 'utf-8')
+}
+
+function foundProxy (response, status, content) {
+  response.writeHead(status)
+  response.end(content, 'utf-8')
+}
+
+function setHeaders (response, headers) {
+  Object.keys(headers).forEach(key => {
+    response.setHeader(key, headers[key])
+  })
 }
 
 function green (text) {
