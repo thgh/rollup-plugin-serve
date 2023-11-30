@@ -37,14 +37,15 @@
     "dist",
     "index.d.ts"
   ],
+  "type": "module",
   "dependencies": {
     "mime": "^4.0.0",
     "opener": "1"
   },
   "devDependencies": {
-    "@rollup/plugin-buble": "0.21.3",
+    "@rollup/plugin-buble": "^1.0.0",
     "@types/node": "^18.7.15",
-    "rollup": "2",
+    "rollup": "4",
     "standard": "17"
   }
 }
