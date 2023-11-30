@@ -38,7 +38,7 @@
     "index.d.ts"
   ],
   "dependencies": {
-    "mime": ">=2.4.6",
+    "mime": "^4.0.0",
     "opener": "1"
   },
   "devDependencies": {
