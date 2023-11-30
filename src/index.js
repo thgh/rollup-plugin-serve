@@ -43,9 +43,8 @@ function serve (options = { contentBase: '' }) {
     })
 
     readFileFromContentBase(options.contentBase, urlPath, function (error, content, filePath) {
-      const mimeType = mime.getType(filePath) || 'text/plain'
       if (!error) {
-        return found(response, mimeType, content)
+        return found(response, mime.getType(filePath), content)
       }
       if (error.code !== 'ENOENT') {
         response.writeHead(500)
@@ -61,7 +60,7 @@ function serve (options = { contentBase: '' }) {
           if (error) {
             notFound(response, filePath)
           } else {
-            found(response, mimeType, content)
+            found(response, mime.getType(filePath), content)
           }
         })
       } else {
@@ -151,7 +150,7 @@ function notFound (response, filePath) {
 }
 
 function found (response, mimeType, content) {
-  response.writeHead(200, { 'Content-Type': mimeType })
+  response.writeHead(200, { 'Content-Type': mimeType || 'text/plain' })
   response.end(content, 'utf-8')
 }
 
