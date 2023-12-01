@@ -2,8 +2,11 @@ import { readFile } from 'fs'
 import { createServer as createHttpsServer } from 'https'
 import { createServer } from 'http'
 import { resolve, posix } from 'path'
+import { Mime } from 'mime/lite'
 
-import mime from 'mime'
+import standardTypes from 'mime/types/standard.js'
+import otherTypes from 'mime/types/other.js'
+
 import opener from 'opener'
 
 let server
@@ -13,6 +16,7 @@ let server
  * @param {import('..').RollupServeOptions} options
  */
 function serve (options = { contentBase: '' }) {
+  const mime = new Mime(standardTypes, otherTypes)
   if (Array.isArray(options) || typeof options === 'string') {
     options = { contentBase: options }
   }
@@ -22,7 +26,6 @@ function serve (options = { contentBase: '' }) {
   options.https = options.https || false
   options.openPage = options.openPage || ''
   options.onListening = options.onListening || function noop () { }
-  mime.default_type = 'text/plain'
 
   if (options.mimeTypes) {
     mime.define(options.mimeTypes, true)
@@ -41,7 +44,7 @@ function serve (options = { contentBase: '' }) {
 
     readFileFromContentBase(options.contentBase, urlPath, function (error, content, filePath) {
       if (!error) {
-        return found(response, filePath, content)
+        return found(response, mime.getType(filePath), content)
       }
       if (error.code !== 'ENOENT') {
         response.writeHead(500)
@@ -57,7 +60,7 @@ function serve (options = { contentBase: '' }) {
           if (error) {
             notFound(response, filePath)
           } else {
-            found(response, filePath, content)
+            found(response, mime.getType(filePath), content)
           }
         })
       } else {
@@ -146,8 +149,8 @@ function notFound (response, filePath) {
     '\n\n(rollup-plugin-serve)', 'utf-8')
 }
 
-function found (response, filePath, content) {
-  response.writeHead(200, { 'Content-Type': mime.getType(filePath) })
+function found (response, mimeType, content) {
+  response.writeHead(200, { 'Content-Type': mimeType || 'text/plain' })
   response.end(content, 'utf-8')
 }
 

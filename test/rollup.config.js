@@ -27,8 +27,11 @@ export default {
       open: true,
       openPage: '/frames.html',
       historyApiFallback: '/fallback.html',
-      contentBase: ['.', 'base1', 'base2'],
+      contentBase: ['.', 'base1', 'base2', 'base3'],
       onListening: testOnListening(),
+      mimeTypes: {
+        'text/x-abc': ['abc'],
+      }
     })
   ]
 }

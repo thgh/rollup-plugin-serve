@@ -8,6 +8,12 @@
     width: 200px;
     border: 1px solid #ccc;
   }
+  iframe.auto-height {
+    height: auto;
+  }
+  td[colspan="3"] iframe {
+    width: 100%;
+  }
   th {
     padding-top: 1rem;
     letter-spacing: 1px;
@@ -53,5 +59,13 @@
     <td><iframe src="./test2.html"></iframe></td>
     <td><iframe src="./base1/test2.html"></iframe></td>
     <td><iframe src="./base2/test2.html"></iframe></td>
+  </tr>
+  <tr>
+    <th></th>
+    <th colspan="3">MIME types</th>
+  </tr>
+  <tr>
+    <td>test3.html</td>
+    <td colspan="3"><iframe src="./test3.html" class="auto-height"></iframe></td>
   </tr>
 </table>
