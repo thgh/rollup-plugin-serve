@@ -1,6 +1,6 @@
 {
   "name": "rollup-plugin-serve",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "Serve your rolled up bundle",
   "main": "dist/index.cjs",
   "module": "dist/index.mjs",
@@ -39,7 +39,7 @@
   ],
   "type": "module",
   "dependencies": {
-    "mime": "^4.0.0",
+    "mime": "^4",
     "opener": "1"
   },
   "devDependencies": {
