@@ -20,7 +20,7 @@ export default {
     format: 'cjs'
   },
   watch: {
-    clearScreen: false,
+    clearScreen: false
   },
   plugins: [
     serve({
@@ -30,7 +30,7 @@ export default {
       contentBase: ['.', 'base1', 'base2', 'base3'],
       onListening: testOnListening(),
       mimeTypes: {
-        'text/x-abc': ['abc'],
+        'text/x-abc': ['abc']
       }
     })
   ]

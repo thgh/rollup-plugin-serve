@@ -15,7 +15,7 @@ let server
  * Serve your rolled up bundle like webpack-dev-server
  * @param {import('..').RollupServeOptions} options
  */
-function serve (options = { contentBase: '' }) {
+function serve(options = { contentBase: '' }) {
   const mime = new Mime(standardTypes, otherTypes)
   if (Array.isArray(options) || typeof options === 'string') {
     options = { contentBase: options }
@@ -25,7 +25,7 @@ function serve (options = { contentBase: '' }) {
   options.headers = options.headers || {}
   options.https = options.https || false
   options.openPage = options.openPage || ''
-  options.onListening = options.onListening || function noop () { }
+  options.onListening = options.onListening || function noop() {}
 
   if (options.mimeTypes) {
     mime.define(options.mimeTypes, true)
@@ -48,10 +48,15 @@ function serve (options = { contentBase: '' }) {
       }
       if (error.code !== 'ENOENT') {
         response.writeHead(500)
-        response.end('500 Internal Server Error' +
-          '\n\n' + filePath +
-          '\n\n' + Object.values(error).join('\n') +
-          '\n\n(rollup-plugin-serve)', 'utf-8')
+        response.end(
+          '500 Internal Server Error' +
+            '\n\n' +
+            filePath +
+            '\n\n' +
+            Object.values(error).join('\n') +
+            '\n\n(rollup-plugin-serve)',
+          'utf-8'
+        )
         return
       }
       if (options.historyApiFallback) {
@@ -77,16 +82,14 @@ function serve (options = { contentBase: '' }) {
   }
 
   // If HTTPS options are available, create an HTTPS server
-  server = options.https
-    ? createHttpsServer(options.https, requestListener)
-    : createServer(requestListener)
+  server = options.https ? createHttpsServer(options.https, requestListener) : createServer(requestListener)
   server.listen(options.port, options.host, () => options.onListening(server))
 
   // Assemble url for error and info messages
   const url = (options.https ? 'https' : 'http') + '://' + (options.host || 'localhost') + ':' + options.port
 
   // Handle common server errors
-  server.on('error', e => {
+  server.on('error', (e) => {
     if (e.code === 'EADDRINUSE') {
       console.error(url + ' is in use, either stop the other server or use a different port.')
       process.exit()
@@ -99,13 +102,13 @@ function serve (options = { contentBase: '' }) {
 
   return {
     name: 'serve',
-    generateBundle () {
+    generateBundle() {
       if (first) {
         first = false
 
         // Log which url to visit
         if (options.verbose !== false) {
-          options.contentBase.forEach(base => {
+          options.contentBase.forEach((base) => {
             console.log(green(url) + ' -> ' + resolve(base))
           })
         }
@@ -123,7 +126,7 @@ function serve (options = { contentBase: '' }) {
   }
 }
 
-function readFileFromContentBase (contentBase, urlPath, callback) {
+function readFileFromContentBase(contentBase, urlPath, callback) {
   let filePath = resolve(contentBase[0] || '.', '.' + urlPath)
 
   // Load index.html in directories
@@ -142,25 +145,23 @@ function readFileFromContentBase (contentBase, urlPath, callback) {
   })
 }
 
-function notFound (response, filePath) {
+function notFound(response, filePath) {
   response.writeHead(404)
-  response.end('404 Not Found' +
-    '\n\n' + filePath +
-    '\n\n(rollup-plugin-serve)', 'utf-8')
+  response.end('404 Not Found' + '\n\n' + filePath + '\n\n(rollup-plugin-serve)', 'utf-8')
 }
 
-function found (response, mimeType, content) {
+function found(response, mimeType, content) {
   response.writeHead(200, { 'Content-Type': mimeType || 'text/plain' })
   response.end(content, 'utf-8')
 }
 
-function green (text) {
+function green(text) {
   return '\u001b[1m\u001b[32m' + text + '\u001b[39m\u001b[22m'
 }
 
-function closeServerOnTermination () {
+function closeServerOnTermination() {
   const terminationSignals = ['SIGINT', 'SIGTERM', 'SIGQUIT', 'SIGHUP']
-  terminationSignals.forEach(signal => {
+  terminationSignals.forEach((signal) => {
     process.on(signal, () => {
       if (server) {
         server.close()
