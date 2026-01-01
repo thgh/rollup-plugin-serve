@@ -2,6 +2,63 @@
 
 All notable changes to `rollup-plugin-serve` will be documented in this file.
 
+## [3.0.1] - 2026-01-01
+
+### Fixed
+
+- Add types condition to package.json exports field #105 @A-floweR-y
+
+## [3.0.0] - 2023-12-01
+
+### Changed
+
+- Upgrade to mime version 4 #101 @Frank3K
+- Upgrade to rollup 4
+- Upgrade packages
+
+### Fixed
+
+- Fix MIME type for history api fallback
+- Add tests for MIME types
+
+## [2.0.3] - 2023-12-01
+
+### Fixed
+
+- Fix mime dependency range
+
+## [2.0.2] - 2022-11-27
+
+### Fixed
+
+- Deduplicate types and only keep index.d.ts
+- Fix incorrect paths in package.json
+- Use consistent wording in types
+
+## [2.0.1] - 2022-08-11
+
+### Fixed
+
+- Add index.d.ts to npm package
+
+## [2.0.0] - 2022-06-29
+
+### Added
+
+- Add TypeScript type definitions #89 @foretoo
+
+### Changed
+
+- Specify package exports and use .mjs and .cjs file extensions
+- Upgrade dependencies
+- Remove old rollup version from readme
+
+## [1.1.1] - 2023-12-14
+
+### Fixed
+
+- Fix mime dependency
+
 ## [1.1.0] - 2020-11-01
 
 ### Added
@@ -120,7 +177,19 @@ All notable changes to `rollup-plugin-serve` will be documented in this file.
 
 - Initial version
 
-[Unreleased]: https://github.com/thgh/rollup-plugin-serve/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/thgh/rollup-plugin-serve/compare/v3.0.1...HEAD
+[3.0.1]: https://github.com/thgh/rollup-plugin-serve/compare/v3.0.0...v3.0.1
+[3.0.0]: https://github.com/thgh/rollup-plugin-serve/compare/v2.0.3...v3.0.0
+[2.0.3]: https://github.com/thgh/rollup-plugin-serve/compare/v2.0.2...v2.0.3
+[2.0.2]: https://github.com/thgh/rollup-plugin-serve/compare/v2.0.1...v2.0.2
+[2.0.1]: https://github.com/thgh/rollup-plugin-serve/compare/v2.0.0...v2.0.1
+[2.0.0]: https://github.com/thgh/rollup-plugin-serve/compare/v1.1.1...v2.0.0
+[1.1.1]: https://github.com/thgh/rollup-plugin-serve/compare/v1.1.0...v1.1.1
+[1.1.0]: https://github.com/thgh/rollup-plugin-serve/compare/v1.0.4...v1.1.0
+[1.0.4]: https://github.com/thgh/rollup-plugin-serve/compare/v1.0.3...v1.0.4
+[1.0.3]: https://github.com/thgh/rollup-plugin-serve/compare/v1.0.2...v1.0.3
+[1.0.2]: https://github.com/thgh/rollup-plugin-serve/compare/v1.0.1...v1.0.2
+[1.0.1]: https://github.com/thgh/rollup-plugin-serve/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/thgh/rollup-plugin-serve/compare/v0.6.1...v1.0.0
 [0.6.1]: https://github.com/thgh/rollup-plugin-serve/compare/v0.5.0...v0.6.1
 [0.5.0]: https://github.com/thgh/rollup-plugin-serve/compare/v0.4.2...v0.5.0
