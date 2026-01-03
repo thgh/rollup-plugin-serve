@@ -40,8 +40,14 @@
   ],
   "type": "module",
   "dependencies": {
+    "compression": "^1.8.1",
+    "connect-history-api-fallback": "^2.0.0",
+    "express": "^5.2.1",
+    "http-proxy-middleware": "^3.0.5",
+    "killable": "^1.0.1",
     "mime": "^4",
-    "opener": "1"
+    "opener": "1",
+    "serve-index": "^1.9.1"
   },
   "devDependencies": {
     "@rollup/plugin-buble": "^1.0.0",

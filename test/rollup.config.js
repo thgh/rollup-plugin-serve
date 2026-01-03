@@ -29,6 +29,9 @@ export default {
       historyApiFallback: '/fallback.html',
       contentBase: ['.', 'base1', 'base2', 'base3'],
       onListening: testOnListening(),
+      headers: {
+        foo: 'bar'
+      },
       mimeTypes: {
         'text/x-abc': ['abc']
       }

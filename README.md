@@ -65,15 +65,33 @@ serve({
   // Multiple folders to serve from
   contentBase: ['dist', 'static'],
 
+  // URL root path to serve the static content at
+  contentBasePublicPath: '/',
+
+  // Customize serving of static files, see https://expressjs.com/en/resources/middleware/serve-static.html
+  staticOptions: {},
+
+  // Set to true to enable the default compression, or to an object to customize the compression
+  // according to https://expressjs.com/en/resources/middleware/compression.html
+  compress: false,
+
+  // Set to true to enable directory indexes, or to an object to customize the index generation
+  // according to https://expressjs.com/en/resources/middleware/serve-index.html
+  serveIndex: false,
+
   // Set to true to return index.html (200) instead of error page (404)
   historyApiFallback: false,
 
-  // Path to fallback page
+  // Path to fallback page, see also https://github.com/bripkens/connect-history-api-fallback
   historyApiFallback: '/200.html',
 
   // Options used in setting up server
   host: 'localhost',
   port: 10001,
+
+  // Set to true to keep incrementing the value of port and trying to bind to it,
+  // until a free port is found.
+  autoPort: false,
 
   // By default server will be served over HTTP (https: false). It can optionally be served over HTTPS
   https: {
@@ -82,18 +100,38 @@ serve({
     ca: fs.readFileSync('/path/to/ca.pem')
   },
 
-  //set headers
+  // Set additional headers
   headers: {
     'Access-Control-Allow-Origin': '*',
     foo: 'bar'
   },
 
-  // set custom mime types, usage https://github.com/broofa/mime#mimedefinetypemap-force--false
+  // Set custom mime types, usage https://github.com/broofa/mime#mimedefinetypemap-force--false
   mimeTypes: {
     'application/javascript': ['js_commonjs-proxy']
-  }
+  },
 
-  // execute function after server has begun listening
+  // Let requests to /api/* be forwarded to http://localhost:3000/*
+  // See the full documentation at https://webpack.js.org/configuration/dev-server/#devserverproxy
+  proxy: [
+    {
+      context: ['/api'],
+      target: 'http://localhost:3000',
+      pathRewrite: { '^/api': '' },
+    },
+  ],
+
+  // Customize the Express instance before all middlewares are installed
+  before: function(app) {
+    ...
+  },
+
+  // Customize the Express instance after all middlewares are installed
+  after: function(app) {
+    ...
+  },
+
+  // Execute function after server has begun listening
   onListening: function (server) {
     const address = server.address()
     const host = address.address === '::' ? 'localhost' : address.address
